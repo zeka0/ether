@@ -1,4 +1,32 @@
 ##Author - Alphasis Zeka
 
-##After Notes
-This branch is now legacy. Plz visit the branch __neoNnet__ to get a in-sight look into a more flexible nnet.
+##Introduction:
+-It's a __theano__-based neural-network.
+-Required modulas include: __numpy__, __theano__.
+-It's a little bit complicated to learn to use at first.
+
+##News:
+-__Good News:__The reborn nnet has now returned! The new version contained a brand-new conv2DLayer.
+-__Bad News:__Some very subtle bugs are still there undetected. If you try out the `\test\lenet5\testLeNet5.py` you would find that the nnet ignores input completely 
+though the connections are valid.
+
+##Future Improvements
+-Further subclass the optimizer and layers, provide more functionalities.
+-Bug out the lenet5.
+-Provide more classes dedicated to debug the network.
+-Test the pickling of the network, it's not behaving well.
+
+##Warnings
+-In numpy, calling ndarray constructor directly may cause problems. It's advised to call array instead.
+-In __conv2DLayer__ module, I used __signal.conv2d__ instead of __nnet.conv2d__.
+
+##Quick Start
+First, you should establish a __database__ to accommodate the __instance__. Then you can build a __validator__(used to report the error rates) and a
+__optimizer__(used to train the nnet). After that, you can start creating objects of __layer__ classes. __Connect__ them when nessary to create a __nnet__.
+Examples can be seen in `\test\lenet5\testLeNet5.py`.
+
+##Notes From Author:
+-Neural network is really tough to learn.
+-And also, if time premitted, grabing a book about numpy is a really good choice.
+-__Yoshua Bengio__ is a pretty nice guy(But his books are not friendly at all).
+-I used the `\test\clearPyc.py` to clean the pyc files created by python interpreter before pushing to git.
