@@ -95,4 +95,4 @@ except Exception:
     pass
 
 print 'validating'
-print(tri.validate(maxCycles=10))
+print(tri.validate(10))

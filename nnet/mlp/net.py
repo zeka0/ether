@@ -1,4 +1,3 @@
-from nnet.util import *
 from layer import *
 
 class nnet(object):

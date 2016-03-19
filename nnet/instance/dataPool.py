@@ -1,5 +1,4 @@
 from collections import deque
-from nnet.util import *
 
 class dataPool(object):
     def __init__(self, reader):

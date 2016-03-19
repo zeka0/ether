@@ -1,4 +1,5 @@
 from nnet.mlp.layer import *
+from nnet.util.util import *
 
 class optimizerBase(nnetController):
     def __init__(self):

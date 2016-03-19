@@ -2,6 +2,7 @@ from theano.tensor.signal.conv import conv2d
 from theano import tensor as T
 import theano
 from nnet.util.shape import *
+import numpy as np
 
 from core import *
 from nnet.mlp.initialize import *
