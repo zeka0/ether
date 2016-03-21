@@ -1,5 +1,6 @@
 import gzip
 import pickle
+from nnet.instance.pool.filter import *
 def readMnist(filePath):
     '''
     Caution!
@@ -17,5 +18,7 @@ if __name__ == '__main__':
     xImags = np.vstack( ( xData[0][0], xData[1][0] ) )
     xTargs = np.hstack( ( xData[0][1], xData[1][1] ) )
     xUniqTargs = np.unique( xTargs )
-    print len(xTargs)
-    print len(xUniqTargs)
+
+    picf = picFilter(0, 255, True)
+    f_xImage = picf.filter(xImags[0])
+    print f_xImage

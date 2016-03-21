@@ -1,5 +1,5 @@
-import sample.theano
-from sample.theano import tensor as T
+import theano
+from theano import tensor as T
 from numpy.matlib import *
 import numpy as np
 
@@ -11,5 +11,5 @@ for i in xrange(11):
 xT = T.matrix()
 wT = T.matrix()
 z = (wT - xT)
-fun = test.theano.function(inputs=[xT, wT], outputs=z)
+fun = theano.function(inputs=[xT, wT], outputs=z)
 print fun(xx, w)

@@ -1,4 +1,3 @@
-import sample.theano
 import numpy as np
 from nnet.mlp.layer.core import *
 

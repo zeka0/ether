@@ -9,7 +9,8 @@ So this will be a little different from the orignal LeNet-5
 '''
 
 mnist_reader = mnistDataReader( r'E:\VirtualDesktop\mnist.pkl.gz', 10)
-db = dataPool( mnist_reader )
+ff = picFilter()
+db = filterPool( mnist_reader, ff )
 classifyVal = classifyValidator()
 opt = crossEntro_SGDOptimizer() #rubbish class label required
 
@@ -20,13 +21,10 @@ for i in xrange(10):
     C1[i].connect(input_layer)
 merge = merge1DLayer()
 merge.connect(*C1)
-weight = weightLayer(10)
-weight.connect(merge)
 layers = []
 layers.append( input_layer )
 layers.extend( C1 )
 layers.append(merge)
-layers.append(weight)
 
 for layer in layers:
     layer.verify_shape()
@@ -35,7 +33,7 @@ n_net = nnet(layers)
 tri = trainer(db, opt, classifyVal, n_net)
 
 print 'training start'
-tri.train(20)
+tri.train(0)
 try:
     import pickle
     fi = open(r'E:\VirtualDesktop\nnet.pkl', 'wb')

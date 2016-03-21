@@ -3,7 +3,9 @@ from nnet import *
 debug = True
 
 mnist_reader = mnistDataReader( r'E:\VirtualDesktop\mnist.pkl.gz', 10)
-db = dataPool(mnist_reader)
+ff = picFilter()
+db = filterPool(mnist_reader,ff)
+
 db.drain_reader()
 classifyVal = classifyValidator()
 opt = crossEntro_SGDOptimizer() #rubbish class label required
@@ -44,14 +46,9 @@ merge.connect( *C5 )
 weight_layer = weightLayer(10)
 weight_layer.connect( merge )
 
-rbf_layers = []
-for i in xrange(10):
-    rbf_layers.append( GassinRBFLayer() )
-    rbf_layers[i].connect(weight_layer)
-merge2 = merge1DLayer()
-merge2.connect(*rbf_layers)
 sftmax = softmaxLayer()
-sftmax.connect(merge2)
+sftmax.connect(weight_layer)
+#sftmax.connect(merge)
 
 layers = []
 layers.append( input_layer )
@@ -61,8 +58,7 @@ layers.extend( C3 )
 layers.extend( S4 )
 layers.extend( C5 )
 layers.extend( [merge, weight_layer] )
-layers.extend( rbf_layers )
-layers.extend([merge2, sftmax])
+layers.extend([sftmax])
 
 if debug:
     print 'input_layer', input_layer.get_outputShape()
@@ -73,8 +69,8 @@ if debug:
     print 'C5', C5[0].get_outputShape()
     print 'merge', merge.get_outputShape()
     print 'weight', weight_layer.get_outputShape()
-    print 'rbf_layer', rbf_layers[0].get_outputShape()
-    print 'merge2', merge2.get_outputShape()
+    #print 'rbf_layer', rbf_layers[0].get_outputShape()
+    #print 'merge2', merge2.get_outputShape()
 
 for layer in layers:
     layer.verify_shape()
@@ -83,7 +79,7 @@ n_net = nnet(layers)
 tri = trainer(db, opt, classifyVal, n_net)
 
 print 'training start'
-tri.train(10)
+tri.train(1000)
 
 try:
     import pickle
@@ -95,4 +91,4 @@ except Exception:
     pass
 
 print 'validating'
-print(tri.validate(10))
+print(tri.validate(200))

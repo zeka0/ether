@@ -13,6 +13,12 @@ class instance(object):
     def get_target(self):
         return self.vecOfTarget
 
+    def reset_attr(self, vecOfAttr):
+        self.vecOfAttr = vecOfAttr
+
+    def reset_tar(self, vecOfTarget):
+        self.vecOfTarget = vecOfTarget
+
 class imgInstance(instance):
     '''
     Transform the target into a vector of possibilities

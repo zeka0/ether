@@ -9,7 +9,8 @@ So this will be a little different from the orignal LeNet-5
 '''
 
 mnist_reader = mnistDataReader( r'E:\VirtualDesktop\mnist.pkl.gz', 10)
-db = dataPool( mnist_reader )
+ff = picFilter()
+db = filterPool( mnist_reader, ff )
 classifyVal = classifyValidator()
 opt = crossEntro_SGDOptimizer() #rubbish class label required
 
@@ -47,10 +48,14 @@ for i in xrange(40):
 merge = merge1DLayer()
 merge.connect( *C5 )
 
+weight = weightLayer(20)
+weight.connect(merge)
+
 rbf_layers = []
 for i in xrange(10):
     rbf_layers.append( GassinRBFLayer() )
-    rbf_layers[i].connect(merge)
+    rbf_layers[i].connect(weight)
+
 merge2 = merge1DLayer()
 merge2.connect(*rbf_layers)
 softmax_layer = softmaxLayer()
@@ -63,7 +68,7 @@ layers.extend( S2 )
 layers.extend( C3 )
 layers.extend( S4 )
 layers.extend( C5 )
-layers.extend( [merge] )
+layers.extend( [merge, weight] )
 layers.extend(rbf_layers)
 layers.extend([merge2, softmax_layer])
 
@@ -75,7 +80,7 @@ if debug:
     print 'S4', S4[0].get_outputShape()
     print 'C5', C5[0].get_outputShape()
     print 'merge', merge.get_outputShape()
-    #print 'weight', weight_layer.get_outputShape()
+    print 'weight', weight.get_outputShape()
     print 'rbf_layer', rbf_layers[0].get_outputShape()
     print 'merge2', merge2.get_outputShape()
     print 'softmax', softmax_layer.get_outputShape()
@@ -84,10 +89,10 @@ for layer in layers:
     layer.verify_shape()
 
 n_net = nnet(layers)
-tri = trainer(db, optimizerBase, classifyVal, n_net)
+tri = trainer(db, opt, classifyVal, n_net)
 
 print 'training start'
-tri.train(0)
+tri.train(1000)
 
 try:
     import pickle

@@ -18,7 +18,7 @@ class weightLayer(layer):
         self.weights = uniform.init_weights( self.get_weightMatrixShape())
 
     def init_bias(self):
-        self.bias = uniform.init_bias( self.numOfOutput )
+        self.bias = shared.shared_double(1)
 
     def get_weights(self):
         return self.weights

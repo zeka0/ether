@@ -1,15 +1,15 @@
-import sample.theano
+import theano
 
-from sample.theano import tensor as T
+from theano import tensor as T
 import numpy as np
 from numpy.matlib import *
-from sample.theano.tensor.signal.conv import *
+from theano.tensor.signal.conv import *
 from nnet.util.activation import *
 from nnet.mlp.initialize import *
 
 xT = T.matrix()
-yT = softmax(xT)
+yT = sigmoid(xT)
 
-fun = test.theano.function(inputs=[xT], outputs=yT)
+fun = theano.function(inputs=[xT], outputs=yT)
 for i in xrange(3):
     print fun(rand(1, 10))

@@ -32,7 +32,7 @@ class conv2DLayer(layer):
         self.filterShape = filterShape
 
     def init_bias(self):
-        self.bias = shared.shared_ones( self.get_outputShape() )
+        self.bias = shared.shared_double(1)
 
     def get_filterShape(self):
         return self.filterShape
@@ -107,8 +107,11 @@ class subSampleLayer(layer):
         assert len(subSampleShape) == 2
         self.subSampleShape = subSampleShape
 
+        self.coef = shared.shared_double(1)
+        self.bias = shared.shared_double(1)
+
     def get_params(self):
-        return None
+        return [self.bias, self.coef]
 
     def verify_shape(self):
         pass
@@ -119,7 +122,7 @@ class subSampleLayer(layer):
 
         self.set_inputTensor( layers[0].get_outputTensor() )
         filter = np.ones( (1, 1) )
-        outputTensor = conv2d( self.get_inputTensor(), filters=filter, subsample=self.subSampleShape )
+        outputTensor = self.coef * conv2d( self.get_inputTensor(), filters=filter, subsample=self.subSampleShape ) + self.bias
         self.set_outputTensor( outputTensor )
 
     def get_inputShape(self):
