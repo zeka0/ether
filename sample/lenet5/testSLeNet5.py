@@ -79,7 +79,7 @@ n_net = nnet(layers)
 tri = trainer(db, opt, classifyVal, n_net)
 
 print 'training start'
-tri.train(1000)
+tri.train(100)
 
 try:
     import pickle

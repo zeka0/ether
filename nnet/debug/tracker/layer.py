@@ -23,7 +23,7 @@ class layerTracker(nnetController):
             self.layerFuns[layer] = theano.function(inputs=[self.get_inputTensor()], outputs=layer.get_outputTensor())
             self.layerOutputs[layer] = []
 
-    def track(self, inputValue):
+    def track_once(self, inputValue):
         for layer in self.get_track_layers():
             self.layerOutputs[layer].append( self.layerFuns[layer](inputValue) )
 
@@ -34,4 +34,18 @@ class layerTracker(nnetController):
                 print 'Layer: ', layer
                 print self.layerOutputs[layer][i]
 
+class layerTrackOptimizer(layerTracker):
+    def __init__(self, nnet, opt):
+        layerTracker.__init__(self, nnet)
+        self.optmizer = opt
+        self.optmizer.set_owner(nnet)
 
+    def set_owner(self, nnet):
+        '''
+        Can't reset nnet
+        '''
+        assert self.nnet == nnet
+
+    def train_once(self, attr, tar):
+        self.optmizer.train_once(attr, tar)
+        self.track_once(attr)

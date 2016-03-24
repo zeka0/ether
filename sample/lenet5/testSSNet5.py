@@ -12,7 +12,6 @@ mnist_reader = mnistDataReader( r'E:\VirtualDesktop\mnist.pkl.gz', 10)
 ff = picFilter()
 db = filterPool( mnist_reader, ff )
 classifyVal = classifyValidator()
-opt = crossEntro_SGDOptimizer() #rubbish class label required
 
 input_layer = inputLayer( (28, 28) )
 C1 = [] #convolution 2D layer
@@ -30,10 +29,12 @@ for layer in layers:
     layer.verify_shape()
 
 n_net = nnet(layers)
-tri = trainer(db, opt, classifyVal, n_net)
+opt = crossEntro_SGDOptimizer() #rubbish class label required
+opt_wrap = paramTrackOptimizer(opt)
+tri = trainer(db, opt_wrap, classifyVal, n_net)
 
 print 'training start'
-tri.train(0)
+tri.train(10)
 try:
     import pickle
     fi = open(r'E:\VirtualDesktop\nnet.pkl', 'wb')
@@ -45,3 +46,4 @@ except Exception:
 
 print 'validating'
 print(tri.validate(200))
+opt_wrap.print_info(maxCycle=10)
