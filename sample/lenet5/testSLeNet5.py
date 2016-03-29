@@ -1,3 +1,4 @@
+#After training, the conv2dLayer's filters and the biases are all 0
 from nnet import *
 
 debug = True

@@ -31,6 +31,19 @@ class optimizerBase(nnetController):
         '''
         raise NotImplementedError()
 
+    def add_additionalOutputs(self, *outputs):
+        '''
+        Add outputs to the outputs_list of the theano.function
+        '''
+        if not hasattr(self, 'outputList'):
+            self.outputList = [out for out in outputs]
+        else:
+            self.outputList.extend(outputs)
+
+    def get_additionalOutputs(self):
+        if hasattr(self, 'outputList'):
+            return self.outputList
+
     def get_gradients(self):
         '''
         Return a list of tuple
@@ -44,15 +57,22 @@ class optimizerBase(nnetController):
         return self.gradParams
 
     def init_train(self):
-        self.train=theano.function(
-            inputs=[self.get_inputTensor(), self.get_targetTensor()],
-            outputs=[self.loss],
-            updates=self.get_updates()
-        )
+        if hasattr(self, 'outputList'):
+            self.train=theano.function(
+                inputs=[self.get_inputTensor(), self.get_targetTensor()],
+                outputs=self.get_additionalOutputs(),
+                updates=self.get_updates()
+            )
+        else:
+            self.train=theano.function(
+                inputs=[self.get_inputTensor(), self.get_targetTensor()],
+                outputs=[],
+                updates=self.get_updates()
+            )
 
     def train_once(self, attr, tar):
         try:
-            self.train(attr, tar) #Discard output
+            return self.train(attr, tar) #Discard output
         except instanceException:
             #no more instances available
             print 'exception occured in instance availability'

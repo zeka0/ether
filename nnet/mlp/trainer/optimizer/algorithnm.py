@@ -29,6 +29,7 @@ class SGDOptimizer(optimizerBase):
             para = gpTuple[1]
             update = para - grad * self.learningRate
             updatesList.append( (para, update) ) #Stochastic batch
+        return updatesList
 
 class adaGradOptimizer(optimizerBase):
     def __init__(self, learningRate=1):
@@ -56,6 +57,5 @@ class adaGradOptimizer(optimizerBase):
             updatesList.append((acc, new_acc))
             new_param = para - self.learningRate * grad / T.sqrt(new_acc)
             updatesList.append((para, new_param))  # apply constraints
-
         return updatesList
 

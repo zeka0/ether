@@ -30,8 +30,7 @@ for layer in layers:
 
 n_net = nnet(layers)
 opt = crossEntro_SGDOptimizer() #rubbish class label required
-opt_wrap = paramTrackOptimizer(opt)
-tri = trainer(db, opt_wrap, classifyVal, n_net)
+tri = trainer(db, opt, classifyVal, n_net)
 
 print 'training start'
 tri.train(10)
@@ -46,4 +45,3 @@ except Exception:
 
 print 'validating'
 print(tri.validate(200))
-opt_wrap.print_info(maxCycle=10)

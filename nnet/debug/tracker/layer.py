@@ -1,14 +1,11 @@
-from nnet.util.util import nnetController
-import theano
+from core import tracker
 
-class layerTracker(nnetController):
-    def __init__(self, nnet):
-        nnetController.__init__(self)
-        self.set_owner(nnet)
-        self.layerFuns = dict()
+class layerTracker(tracker):
+    def __init__(self, opt):
+        tracker.__init__(self, opt)
         self.layerOutputs = dict()
 
-    def get_track_layers(self):
+    def get_trackKeys(self):
         if not hasattr(self, 'trackLayers'):
             self.trackLayers = []
         return self.trackLayers
@@ -16,36 +13,23 @@ class layerTracker(nnetController):
     def add_track_layers(self, *layers):
         for layer in layers:
             assert layer in self.get_layers()
-        self.get_track_layers().extend(layers)
+        self.get_trackKeys().extend(layers)
 
-    def init_layerFuns(self):
-        for layer in self.get_track_layers():
-            self.layerFuns[layer] = theano.function(inputs=[self.get_inputTensor()], outputs=layer.get_outputTensor())
+    def init_track(self):
+        track_list = []
+        for layer in self.get_trackKeys():
             self.layerOutputs[layer] = []
+            track_list.append(layer.get_outputTensor)
+        self.optimizer.add_additionalOutputs(track_list)
 
-    def track_once(self, inputValue):
-        for layer in self.get_track_layers():
-            self.layerOutputs[layer].append( self.layerFuns[layer](inputValue) )
+    def train_once(self, attr, tar):
+        result = self.optimizer.train_once(attr, tar)
+        for layer, out in zip(self.layerOutputs.keys(), result):
+            self.track(layer, out)
 
     def print_info(self, maxCycles=3):
         for i in xrange(3):
             print 'Ouputs in cycle ', i
-            for layer in self.get_track_layers():
+            for layer in self.get_trackKeys():
                 print 'Layer: ', layer
                 print self.layerOutputs[layer][i]
-
-class layerTrackOptimizer(layerTracker):
-    def __init__(self, nnet, opt):
-        layerTracker.__init__(self, nnet)
-        self.optmizer = opt
-        self.optmizer.set_owner(nnet)
-
-    def set_owner(self, nnet):
-        '''
-        Can't reset nnet
-        '''
-        assert self.nnet == nnet
-
-    def train_once(self, attr, tar):
-        self.optmizer.train_once(attr, tar)
-        self.track_once(attr)
