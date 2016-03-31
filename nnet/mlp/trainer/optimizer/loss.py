@@ -10,4 +10,4 @@ def lenet(opt):
     '''
     It follows that the output shape of a layer is a matrix regardless of whether it's vector or not
     '''
-    return opt.get_outputTensor()[0][ T.argmax(opt.get_targetTensor()) ] + T.log( 6 + ( T.exp( - opt.get_outputTensor() ) ).sum() )
+    return opt.get_outputTensor()[0][ T.argmin(opt.get_targetTensor()) ] + T.log( 6 + ( T.exp( - opt.get_outputTensor() ) ).sum() )

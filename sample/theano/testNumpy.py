@@ -1,4 +1,4 @@
 import numpy as np
-x = np.ones((2, 3))
-y = np.ones((2, 3))
-print x == y
+x = np.ones((4,4))
+y = x.flat[:]
+print y

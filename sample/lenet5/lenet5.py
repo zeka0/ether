@@ -1,19 +1,20 @@
 from nnet import *
+import pickle
 
 debug = True
+picPath = r'E:\VirtualDesktop\lenet\kernels.pkl'
+filePath = r'E:\VirtualDesktop\lenet\double_mnist.pkl.gz'
 
-'''
-The mnist I'm using only has 10 classes (0-9)
-And the image size is (28L, 28L)
-So this will be a little different from the orignal LeNet-5
-'''
-
-mnist_reader = mnistDataReader( r'E:\VirtualDesktop\mnist.pkl.gz', 10)
+#Preparation
+mnist_reader = mnistDataReader(filePath, 10)
 ff = picFilter()
 db = filterPool( mnist_reader, ff )
 classifyVal = classifyValidator()
 opt = SGDOptimizer(lenet)
+with open(picPath, 'rb') as f:
+    kernels = pickle.load(f)
 
+#Buiding net
 input_layer = inputLayer( (28, 28) )
 C1 = [] #convolution 2D layer
 for i in xrange(6):
@@ -41,19 +42,19 @@ for i in xrange(16):
 for i in xrange(16):
     S4[i].connect( C3[i] )
 C5 = []
-for i in xrange(40):
+for i in xrange(20):
     C5.append( conv2DLayer( (4, 4) ) )
     C5[i].connect( *S4 )
 
 merge = merge1DLayer()
 merge.connect( *C5 )
 
-weight = weightLayer(20)
+weight = weightLayer(112)
 weight.connect(merge)
 
 rbf_layers = []
 for i in xrange(10):
-    rbf_layers.append( GassinRBFLayer() )
+    rbf_layers.append( fixedGassinRBFLayer(kernels[i]) )
     rbf_layers[i].connect(weight)
 
 merge2 = merge1DLayer()
@@ -72,6 +73,7 @@ layers.extend( [merge, weight] )
 layers.extend(rbf_layers)
 layers.extend([merge2, softmax_layer])
 
+#Varifying shapes
 if debug:
     print 'input_layer', input_layer.get_outputShape()
     print 'C1', C1[0].get_outputShape()
@@ -84,24 +86,26 @@ if debug:
     print 'rbf_layer', rbf_layers[0].get_outputShape()
     print 'merge2', merge2.get_outputShape()
     print 'softmax', softmax_layer.get_outputShape()
-
 for layer in layers:
     layer.verify_shape()
 
+#Put together
 n_net = nnet(layers)
 tri = trainer(db, opt, classifyVal, n_net)
 
+#training
 print 'training start'
 tri.train(1000)
 
+#Dumping nnet
 try:
-    import pickle
     fi = open(r'E:\VirtualDesktop\nnet.pkl', 'wb')
-    pickle.dump(n_net, fi)
+    pickle.dump(nnet, fi)
     fi.close()
 except Exception:
     print 'Exception occured during the process of picking'
     pass
 
+#Validate
 print 'validating'
 print(tri.validate(200))
