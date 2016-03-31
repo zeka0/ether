@@ -41,9 +41,34 @@ class RBFLayer(layer):
         '''
         raise NotImplementedError()
 
+class fixedRBFLayer(RBFLayer):
+    '''
+    Uses user defined kernels and during the training, the kernels are not changed
+    However, the computation may report an mis-match error if user defined kernels with wrong shape
+    '''
+    def __init__(self, kernels):
+        RBFLayer.__init__(self)
+        self.kernels = kernels
+
+    def init_kernels(self, numOfConnections):
+        '''
+        Ignore the input
+        '''
+        pass
+
+    def get_params(self):
+        return None
+
 class GassinRBFLayer(RBFLayer):
     def __init__(self):
         RBFLayer.__init__(self)
+
+    def get_RBFTensor(self):
+        return ( T.pow( self.get_kernels() - self.get_inputTensor(), 2 ) ).sum()
+
+class fixedGassinRBFLayer(fixedRBFLayer):
+    def __init__(self, kernels):
+        fixedRBFLayer.__init__(self, kernels)
 
     def get_RBFTensor(self):
         return ( T.pow( self.get_kernels() - self.get_inputTensor(), 2 ) ).sum()

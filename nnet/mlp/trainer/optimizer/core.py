@@ -2,7 +2,12 @@ from nnet.mlp.layer import *
 from nnet.util.util import *
 
 class optimizerBase(nnetController):
-    def __init__(self):
+    def __init__(self, func):
+        '''
+        func is a function object, which will acceptr an optimizer as its parameter and
+        return a tensor as the loss
+        '''
+        self.func = func
         nnetController.__init__(self)
 
     def set_owner(self, nnet):
@@ -16,14 +21,15 @@ class optimizerBase(nnetController):
     def init_loss(self):
         '''
         call init_loss to initialize the loss function
+        this method can't be called before the set_owner method
         '''
-        raise NotImplementedError()
+        self.loss = self.func(self)
 
     def get_loss(self):
         '''
         return the tensor of the loss function
         '''
-        raise NotImplementedError()
+        return self.loss
 
     def get_updates(self):
         '''

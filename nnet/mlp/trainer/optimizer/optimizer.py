@@ -8,18 +8,12 @@ To disable it, add 'on_unused_input = 'warn'' to the theano.function
 '''
 
 class SGDOptimizer(optimizerBase):
-    def __init__(self, learningRate=1):
-        optimizerBase.__init__(self)
+    def __init__(self, func, learningRate=0.01):
+        optimizerBase.__init__(self, func)
         self.learningRate = learningRate
 
     def get_learningRate(self):
         return self.learningRate
-
-    def init_loss(self):
-        raise NotImplementedError('subclass to implement loss-function')
-
-    def get_loss(self):
-        return self.loss
 
     def get_updates(self):
         gradParams = self.get_gradients()
@@ -32,18 +26,12 @@ class SGDOptimizer(optimizerBase):
         return updatesList
 
 class adaGradOptimizer(optimizerBase):
-    def __init__(self, learningRate=1):
-        optimizerBase.__init__(self)
+    def __init__(self, func, learningRate=0.01):
+        optimizerBase.__init__(self, func)
         self.learningRate = learningRate
 
     def get_learningRate(self):
         return self.learningRate
-
-    def init_loss(self):
-        raise NotImplementedError('subclass to implement loss-function')
-
-    def get_loss(self):
-        return self.loss
 
     def get_updates(self):
         gradParaTuples = self.get_gradients()
@@ -58,4 +46,3 @@ class adaGradOptimizer(optimizerBase):
             new_param = para - self.learningRate * grad / T.sqrt(new_acc)
             updatesList.append((para, new_param))  # apply constraints
         return updatesList
-

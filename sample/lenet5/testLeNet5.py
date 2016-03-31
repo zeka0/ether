@@ -12,7 +12,7 @@ mnist_reader = mnistDataReader( r'E:\VirtualDesktop\mnist.pkl.gz', 10)
 ff = picFilter()
 db = filterPool( mnist_reader, ff )
 classifyVal = classifyValidator()
-opt = crossEntro_SGDOptimizer() #rubbish class label required
+opt = SGDOptimizer(lenet)
 
 input_layer = inputLayer( (28, 28) )
 C1 = [] #convolution 2D layer
