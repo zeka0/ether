@@ -8,6 +8,12 @@ def norm_img(img):
     img[boolArr] = 1
     return img
 
+def trim_img(img):
+    mat = []
+    for row in img:
+        mat.append(row[4:-3])
+    return np.array(mat)
+
 filePath = r'E:\VirtualDesktop\lenet\double_mnist.pkl.gz'
 picPath = r'E:\VirtualDesktop\lenet\kernels.pkl'
 
@@ -26,13 +32,17 @@ outputTensor = conv2d(input=xT, filters=filter, subsample=(2,2) )
 fun = theano.function(inputs=[xT], outputs=outputTensor)
 
 tmp = []
-for img in yData:
-    tmp.append(img[1:26][6:22])
-tmp2 = []
 tmpImg = None
-for img in tmp:
+tmp2=[]
+
+for img in yData:
     tmpImg = fun(img)
-    tmp2.append(norm_img(tmpImg).flat[:])
+    tmpImg = norm_img(tmpImg)[2:-2]
+    tmp.append(trim_img(tmpImg))
+
+for img in tmp:
+    tmp2.append(img.flat[:])
+
 yyData = tuple(tmp2)
 
 try:
@@ -43,3 +53,5 @@ try:
 except Exception:
     print 'Exception occured during the process of picking'
     pass
+
+#ultimate size of the yyData is (1, 70)

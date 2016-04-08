@@ -4,10 +4,13 @@ import numpy as np
 from numpy.matlib import *
 from nnet.util import *
 
-w = rand( (10, 1) )
-x = rand( (1, 10) )
+w = zeros( (10, 10) )
+x = zeros( (10, 10) )
+
+dT = T.dscalar()
 xT = T.matrix()
 wT = T.matrix()
-zT = xT.dot(wT)
-fun = theano.function(inputs=[xT, wT], outputs=zT)
-print fun(x, w)
+
+zT = xT.dot(wT) + dT
+fun = theano.function(inputs=[xT, wT, dT], outputs=zT)
+print fun(x, w, 1)

@@ -32,7 +32,7 @@ class conv2DLayer(layer):
         self.filterShape = filterShape
 
     def init_bias(self):
-        self.bias = shared.shared_double(1)
+        self.bias = shared.shared_double(0)
 
     def get_filterShape(self):
         return self.filterShape
@@ -77,7 +77,7 @@ class conv2DLayer(layer):
         inputTensors = []
         #one filter for every pre-layer
         for i, filter in zip( xrange( self.get_numOfFilters() ), self.get_filters() ):
-            outputTensor += conv2d( layers[i].get_outputTensor(), filters=filter )
+            outputTensor = outputTensor + conv2d( layers[i].get_outputTensor(), filters=filter )
             inputTensors.append( layers[i].get_outputTensor() )
 
         self.set_outputTensor( outputTensor )

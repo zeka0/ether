@@ -15,10 +15,11 @@ class weightLayer(layer):
         self.init_bias()
 
     def init_weights(self):
-        self.weights = uniform.init_weights( self.get_weightMatrixShape())
+        #TODO:
+        self.weights = uniform.init_uniform(low=-0.25, high=0.25, shape=self.get_weightMatrixShape() )
 
     def init_bias(self):
-        self.bias = shared.shared_double(1)
+        self.bias = shared.shared_double(0)
 
     def get_weights(self):
         return self.weights

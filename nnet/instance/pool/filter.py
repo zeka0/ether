@@ -33,8 +33,9 @@ class picFilter(filterBase):
     def filter(self, data):
         datax = data.get_attr()
         boolArr = (datax == 0)
-        datax[boolArr] = -0.1
+        #TODO:
+        datax[boolArr] = -1
         boolArr = (boolArr == False) #reverse the boolArr
-        datax[boolArr] = 1.17
+        datax[boolArr] = 1
         data.reset_attr(datax)
         return data

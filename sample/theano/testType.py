@@ -1,5 +1,4 @@
-import sample.theano
-from sample.theano import tensor as T
+from theano import tensor as T
 import numpy as np
 from numpy.matlib import *
 

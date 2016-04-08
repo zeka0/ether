@@ -99,3 +99,22 @@ class softmaxLayer(activationLayer):
 
     def verify_shape(self):
         pass
+
+class minusLayer(activationLayer):
+    def __init__(self):
+        activationLayer.__init__(self)
+
+    def connect(self, *layers):
+        assert len(layers) == 1
+        self.inputShape = layers[0].get_outputShape()
+        self.set_inputTensor( layers[0].get_outputTensor() )
+        self.set_outputTensor( -( self.get_inputTensor() ) )
+
+    def get_inputShape(self):
+        return self.inputShape
+
+    def get_outputShape(self):
+        return self.get_inputShape()
+
+    def verify_shape(self):
+        pass

@@ -6,24 +6,20 @@ class paramTracker(tracker):
     '''
     def __init__(self, opt):
         tracker.__init__(self, opt)
+        self.params = []
 
     def get_trackKeys(self):
-        return self.get_params()
+        return self.params
 
     def init_track(self):
         pass
 
-    def train_once(self, attr, tar):
-        self.optimizer.train_once(attr, tar)
-        for para in self.trackDic.keys():
-            #we don't use extend here because kwargs[key] may be an ndarray which can be a list
-            self.trackDic[para].append(para.get_value())
-
-    def print_info(self, maxCycle=3):
-        for para in self.trackDic:
-            print 'parameter name:\n', para
-            print 'train traits:'
-            for i in xrange( maxCycle):
-                if i < len(self.trackDic[para]):
-                    print 'Cycle ', i, ' Value:\n'
-                    print self.trackDic[para][i]
+    def add_params(self, *params):
+        self.params.extend(params)
+        '''
+        I used to use the shared_variable's method get_value()
+        to speed up. But I found that this action will limit those parameters
+        to be tracked. This version is a little bit slow but it's more generous
+        Most importantly, it meets the requirement of the mergeTracker
+        '''
+        self.optimizer.add_additionalOutputs(*params)

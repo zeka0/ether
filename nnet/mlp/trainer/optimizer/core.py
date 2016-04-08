@@ -47,8 +47,7 @@ class optimizerBase(nnetController):
             self.outputList.extend(outputs)
 
     def get_additionalOutputs(self):
-        if hasattr(self, 'outputList'):
-            return self.outputList
+        return self.outputList
 
     def get_gradients(self):
         '''

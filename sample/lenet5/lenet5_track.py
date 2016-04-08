@@ -9,8 +9,11 @@ filePath = r'E:\VirtualDesktop\lenet\double_mnist.pkl.gz'
 mnist_reader = mnistDataReader(filePath, 10)
 ff = picFilter()
 db = filterPool( mnist_reader, ff )
-classifyVal = classifyValidator(argmin)
+
+#init tracker
 opt = SGDOptimizer(lenet)
+ltracker = layerTracker(opt)
+classifyVal = classifyValidator(argmin)
 
 with open(picPath, 'rb') as f:
     kernels = pickle.load(f)
@@ -43,7 +46,6 @@ for i in xrange(16):
 for i in xrange(16):
     S4[i].connect( C3[i] )
 C5 = []
-#TODO:
 for i in xrange(40):
     C5.append( conv2DLayer( (4, 4) ) )
     C5[i].connect( *S4 )
@@ -97,19 +99,29 @@ for layer in layers:
 
 #Put together
 n_net = nnet(layers)
-tri = trainer(db, opt, classifyVal, n_net)
+print 'building trainer'
+ltracker.add_trackLayers(merge_layer, weight_layer, tanh_layer, merge_layer2, softmax_layer)
+tri = trainer(db, ltracker, classifyVal, n_net)
+#Add layers to layer_tracker
 
 #training
 print 'training start'
-tri.train(10000)
+tri.train(20000)
 
 #Dumping nnet
 try:
     with open(r'E:\VirtualDesktop\lenet\nnet.pkl', 'wb') as fi:
         pickle.dump(n_net, fi)
 except Exception:
-    print 'Exception occured during the process of picking'
+    print 'Exception occured during the process of picking nnet'
+try:
+    with open(r'E:\VirtualDesktop\lenet\tri.pkl', 'wb') as fi:
+        pickle.dump(tri, fi)
+except Exception:
+    print 'Exception occured during the process of picking of trainer'
 
 #Validate
 print 'validating'
 print(tri.validate(200))
+
+ltracker.print_info(maxCycles=20)
