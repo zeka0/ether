@@ -77,7 +77,7 @@ tri = trainer(db, ltracker, classifyVal, n_net)
 
 #training
 print 'training start'
-tri.train(40000)
+tri.train(0)
 
 #Dumping nnet
 try:

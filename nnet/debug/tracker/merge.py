@@ -1,4 +1,5 @@
 from core import tracker
+
 '''
 Provide utilities for tracking multiple targets
 '''

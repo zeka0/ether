@@ -1,8 +1,20 @@
 import numpy as np
 from theano.tensor.signal.conv import conv2d
-from nnet.mlp.initialize import init_shared
+
 from core import *
 from nnet.util.shape import *
+
+'''
+Personally I recommend using T.signal.conv2d instead of using T.nnet.conv2d
+Because it's much more simple, and more flexible than nnet.conv2d
+And it can be used to implement LeNet-5 with greater ease
+
+As for conv2DLayer and mergeLayer
+You can find that this two layers don't support the set_inputTensor and get_inputTensor
+But their conterparts are provided
+Since the layer-connection only requires the outputTensor
+These changes aren't harmful
+'''
 
 class conv2DLayer(layer):
     '''
@@ -10,18 +22,14 @@ class conv2DLayer(layer):
     And in order to make several feature-maps out of a single 2D image
     Just create more conv2DLayer and make them connect to the image
     '''
-    def __init__(self, filterShape, **kwargs):
+    def __init__(self, filterShape):
         layer.__init__(self)
         if len( filterShape ) != 2:
             raise mlpException('wrong shape parameter in convolution layer')
         self.filterShape = filterShape
-        assert kwargs.has_key('bias')
-        assert kwargs.has_key('filter')
-        self.biasKwargs = kwargs['bias']
-        self.filterKwargs = kwargs['filter']
 
     def init_bias(self):
-        self.bias = init_shared(**self.biasKwargs)
+        self.bias = shared.shared_double(0)
 
     def get_filterShape(self):
         return self.filterShape
@@ -30,9 +38,7 @@ class conv2DLayer(layer):
         return len( self.get_preLayers() )
 
     def init_filters(self):
-        self.filters = []
-        for i in xrange(self.get_numOfFilters()):
-            self.filters.append( init_shared(**self.filterKwargs) )
+        self.filters = normal.init_filters(self.get_numOfFilters(), self.get_filterShape())
 
     def get_filters(self):
         return self.filters
@@ -93,14 +99,13 @@ class conv2DLayer(layer):
         return paramList
 
 class subSampleLayer(layer):
-    def __init__(self, subSampleShape, **kwargs):
+    def __init__(self, subSampleShape):
         layer.__init__(self)
         assert len(subSampleShape) == 2
         self.subSampleShape = subSampleShape
-        assert kwargs.has_key('coef')
-        assert kwargs.has_key('bias')
-        self.coef = init_shared(**kwargs['coef'])
-        self.bias = init_shared(**kwargs['bias'])
+
+        self.coef = shared.shared_double(1)
+        self.bias = shared.shared_double(1)
 
     def get_params(self):
         return [self.bias, self.coef]

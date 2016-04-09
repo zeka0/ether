@@ -1,27 +1,22 @@
 from core import *
 from nnet.util.shape import *
-from nnet.mlp.initialize import init_shared
 
 
 class weightLayer(layer):
     '''
     We can view weight-layer as a conv1D layer
     '''
-    def __init__(self, numOfOutput, **kwargs):
+    def __init__(self, numOfOutput):
         layer.__init__(self)
         self.numOfOutput = numOfOutput
         self.init_bias()
-        assert kwargs.has_key('weight')
-        assert kwargs.has_key('bias')
-        self.weightKwargs = kwargs['weight']
-        self.biasKwargs = kwargs['bias']
-        assert not self.weightKwargs.has_key('shape')
 
     def init_weights(self):
-        self.weights = init_shared(shape=self.get_weightMatrixShape(), **self.weightKwargs)
+        #TODO:
+        self.weights = uniform.init_uniform(low=-0.25, high=0.25, shape=self.get_weightMatrixShape())
 
     def init_bias(self):
-        self.bias = init_shared(**self.biasKwargs)
+        self.bias = shared.shared_double(0)
 
     def get_weights(self):
         return self.weights

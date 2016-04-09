@@ -1,24 +1,15 @@
 from core import *
-from nnet.mlp.initialize import init_shared
 
-def gausi_rbf(rbflayer):
-    return ( T.pow( rbflayer.get_kernels() - rbflayer.get_inputTensor(), 2 ) ).sum()
 
 class RBFLayer(layer):
     '''
     This class implements the naivest version of the RDF
     '''
-    def __init__(self, func, **kwargs):
+    def __init__(self):
         layer.__init__(self)
-        self.rbfKwargs = kwargs
-        self.func = func
-        if kwargs is not None: #fixed kernal rbf may not provide kwargs
-            assert kwargs.has_key('kernel')
-            self.kernelKwargs = kwargs['kernel']
-            assert not self.kernelKwargs.has_key('shape') #No need to provide shape
 
     def init_kernels(self, numOfConnections):
-        self.kernels = init_shared(shape=numOfConnections, **self.kernelKwargs)
+        self.kernels = uniform.init_kernels(numOfConnections)
 
     def get_kernels(self):
         return self.kernels
@@ -31,7 +22,7 @@ class RBFLayer(layer):
         self.intputShape = layers[0].get_outputShape()
         self.set_inputTensor( layers[0].get_outputTensor() )
         self.init_kernels( self.get_inputShape()[1] ) #assume inputShape is 1D
-        outputTensor = self.func(self)
+        outputTensor = self.get_RBFTensor()
         self.set_outputTensor( outputTensor )
 
     def get_inputShape(self):
@@ -43,13 +34,19 @@ class RBFLayer(layer):
     def verify_shape(self):
         pass
 
+    def get_RBFTensor(self):
+        '''
+        Subclass should modify this to return a tensor indicating the function it uses as the base function
+        '''
+        raise NotImplementedError()
+
 class fixedRBFLayer(RBFLayer):
     '''
     Uses user defined kernels and during the training, the kernels are not changed
     However, the computation may report an mis-match error if user defined kernels with wrong shape
     '''
-    def __init__(self, func, kernels):
-        RBFLayer.__init__(self, func)
+    def __init__(self, kernels):
+        RBFLayer.__init__(self)
         self.kernels = kernels
 
     def init_kernels(self, numOfConnections):
@@ -60,3 +57,17 @@ class fixedRBFLayer(RBFLayer):
 
     def get_params(self):
         return None
+
+class GassinRBFLayer(RBFLayer):
+    def __init__(self):
+        RBFLayer.__init__(self)
+
+    def get_RBFTensor(self):
+        return ( T.pow( self.get_kernels() - self.get_inputTensor(), 2 ) ).sum()
+
+class fixedGassinRBFLayer(fixedRBFLayer):
+    def __init__(self, kernels):
+        fixedRBFLayer.__init__(self, kernels)
+
+    def get_RBFTensor(self):
+        return ( T.pow( self.get_kernels() - self.get_inputTensor(), 2 ) ).sum()

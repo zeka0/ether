@@ -1,5 +1,4 @@
 from core import *
-from nnet.mlp.initialize import *
 
 '''
 When using this module, one thing to bear in mind is that you should check if loss function uses the targetTensor
@@ -35,7 +34,7 @@ class adaGradOptimizer(optimizerBase):
 
     def get_updates(self):
         gradParaTuples = self.get_gradients()
-        accumulators = [ shared.shared_zeros(p.get_value().shape) for g, p in gradParaTuples ]
+        accumulators = [shared.shared_zeros(p.get_value().shape) for g, p in gradParaTuples]
         updatesList = []
 
         for gpTuple, acc in zip(gradParaTuples, accumulators):

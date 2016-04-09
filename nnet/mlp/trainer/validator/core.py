@@ -1,4 +1,4 @@
-from nnet.util.util import *
+from nnet.util.controller import *
 
 class validator(nnetController):
     def __init__(self):

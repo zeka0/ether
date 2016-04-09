@@ -1,7 +1,7 @@
 import os
 import sys
 
-rootDir = '..'
+rootDir = '.'
 
 for dirPath, dirNames, fileNames in os.walk(rootDir):
     for fileName in fileNames:

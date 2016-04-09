@@ -1,9 +1,17 @@
-from nnet.util.util import nnetController
+from nnet.util.controller import nnetController
+
 class tracker(nnetController):
-    def __init__(self, opt):
+    def __init__(self, opt, stride=0):
+        '''
+        stride sepcifies how many steps the tracker should ignore before recording anything
+        however, the first training will always be recorded
+        '''
         nnetController.__init__(self)
         self.optimizer = opt
         self.trackDic = dict()
+        assert stride >= 0
+        self.stride = stride
+        self.stride_now = 0
 
     def set_owner(self, nnet):
         nnetController.set_owner(self, nnet)
@@ -53,8 +61,12 @@ class tracker(nnetController):
         Wrapper over optimizer
         '''
         result = self.optimizer.train_once(attr, tar)
-        for key, value in zip(self.get_trackKeys(), result):
-            self.track(key, value)
+        if self.stride_now < self.stride:
+            self.stride_now += 1
+        else:
+            for key, value in zip(self.get_trackKeys(), result):
+                self.track(key, value)
+            self.stride_now = 0
 
     def print_info(self, maxCycles=3, comp=False):
         for para in self.get_trackKeys():
