@@ -43,7 +43,8 @@ for i in xrange(16):
 for i in xrange(16):
     S4[i].connect( C3[i] )
 C5 = []
-#TODO:
+
+#TODO: change number of the conv2DLayer
 for i in xrange(40):
     C5.append( conv2DLayer( (4, 4) ) )
     C5[i].connect( *S4 )
