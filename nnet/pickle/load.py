@@ -2,6 +2,7 @@ import pickle
 from core import *
 from nnet.util.controller import nnetController
 from nnet.mlp.trainer.trainer import trainer
+from nnet.debug.tracker import tracker
 
 def load_nnet():
     try:
@@ -16,6 +17,8 @@ def load_optimizer(nnet):
         with open( get_optimizer_fpath(), 'rb' ) as fi:
             opt = pickle.load(fi)
         nnetController.set_owner(opt, nnet)
+        if isinstance(opt, tracker):
+            nnetController.set_owner( opt.get_opt(), nnet )
         return opt
     except Exception as ex:
         print 'Exception occured in process of loading nnet'

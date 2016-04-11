@@ -4,6 +4,7 @@ In dumping, the dataBase is never dumped.
 import pickle
 from core import *
 from nnet.util.controller import nnetController
+from nnet.debug.tracker.core import tracker
 
 def dump_nnet(nnet):
     try:
@@ -21,6 +22,9 @@ It can be faster and save more space.
 def dump_optimizer(opt):
     net = opt.get_owner()
     nnetController.set_owner(opt, None)
+    if isinstance(opt, tracker):
+        nnetController.set_owner( opt.get_opt(), None )
+
     try:
         with open( get_optimizer_fpath(), 'wb' ) as fi:
             pickle.dump(opt, fi)
@@ -29,6 +33,8 @@ def dump_optimizer(opt):
         print ex
     finally:
         nnetController.set_owner(opt, net)#preserve the validity of the optimizer
+        if isinstance(opt, tracker):
+            nnetController.set_owner(opt.get_opt(), net)#preserve the validity of the optimizer
 
 def dump_validator(val):
     net = opt.get_owner()
