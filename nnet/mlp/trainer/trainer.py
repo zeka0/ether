@@ -1,15 +1,35 @@
 from nnet.util.exception import *
 class trainer:
     def __init__(self, dataBase, optimizer, validator, nnet):
-        self.optimizer=optimizer
-        self.optimizer.set_owner(nnet)
-        self.validator=validator
-        self.validator.set_owner(nnet)
+        self.nnet = nnet
+        self.set_optimizer(optimizer)
+        self.set_validator(validator)
+        self.set_dataBase(dataBase)
+
+    def compile(self):
+        self.optimizer.set_owner(self.nnet)
+        self.validator.set_owner(self.nnet)
+
+    def set_dataBase(self, dataBase):
         self.dataBase=dataBase #Storage
+
+    def set_optimizer(self, optimizer):
+        self.optimizer=optimizer
 
     def set_validator(self, validator):
         self.validator = validator
-        self.validator.set_owner(self)
+
+    def get_optimizer(self):
+        return self.optimizer
+
+    def get_validator(self):
+        return self.validator
+
+    def get_nnet(self):
+        return self.nnet
+
+    def has_nextInstance(self, batchSize=1):
+        return self.dataBase.has_nextInstance(batchSize)
 
     def read_instances(self, batchSize=1):
         '''
@@ -18,9 +38,6 @@ class trainer:
         if self.dataBase.has_nextInstance(batchSize):
             return self.dataBase.read_instances(batchSize)
         else: raise instanceException('nnet has no more instances')
-
-    def has_nextInstance(self, batchSize=1):
-        return self.dataBase.has_nextInstance(batchSize)
 
     def train(self, cycles):
         for i in xrange(cycles):

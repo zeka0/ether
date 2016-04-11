@@ -13,6 +13,9 @@ class nnetController:
         '''
         self.nnet = nnet
 
+    def get_owner(self):
+        return self.nnet
+
     def get_inputTensor(self):
         return self.nnet.get_inputTensor()
 

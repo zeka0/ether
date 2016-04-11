@@ -12,7 +12,7 @@ class RBFLayer(layer):
         layer.__init__(self)
         self.rbfKwargs = kwargs
         self.func = func
-        if kwargs is not None: #fixed kernal rbf may not provide kwargs
+        if len(kwargs) != 0:
             assert kwargs.has_key('kernel')
             self.kernelKwargs = kwargs['kernel']
             assert not self.kernelKwargs.has_key('shape') #No need to provide shape
@@ -26,14 +26,6 @@ class RBFLayer(layer):
     def get_params(self):
         return [self.get_kernels()]
 
-    def connect(self, *layers):
-        assert len(layers) == 1
-        self.intputShape = layers[0].get_outputShape()
-        self.set_inputTensor( layers[0].get_outputTensor() )
-        self.init_kernels( self.get_inputShape()[1] ) #assume inputShape is 1D
-        outputTensor = self.func(self)
-        self.set_outputTensor( outputTensor )
-
     def get_inputShape(self):
         return self.intputShape
 
@@ -42,6 +34,14 @@ class RBFLayer(layer):
 
     def verify_shape(self):
         pass
+
+    def connect(self, *layers):
+        assert len(layers) == 1
+        self.intputShape = layers[0].get_outputShape()
+        self.set_inputTensor( layers[0].get_outputTensor() )
+        self.init_kernels( self.get_inputShape()[1] ) #assume inputShape is 1D
+        outputTensor = self.func(self)
+        self.set_outputTensor( outputTensor )
 
 class fixedRBFLayer(RBFLayer):
     '''

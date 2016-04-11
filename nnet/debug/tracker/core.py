@@ -7,11 +7,17 @@ class tracker(nnetController):
         however, the first training will always be recorded
         '''
         nnetController.__init__(self)
-        self.optimizer = opt
+        self.set_opt(opt)
         self.trackDic = dict()
         assert stride >= 0
         self.stride = stride
         self.stride_now = 0
+
+    def get_opt(self):
+        return self.optimizer
+
+    def set_opt(self, opt):
+        self.optimizer = opt
 
     def set_owner(self, nnet):
         nnetController.set_owner(self, nnet)
@@ -87,4 +93,3 @@ class tracker(nnetController):
                     if i < len(self.trackDic[para]):
                         print 'Cycle ', i, 'Values:'
                         print self.trackDic[para][i]
-

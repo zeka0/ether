@@ -19,20 +19,21 @@ class conv2DLayer(layer):
         assert kwargs.has_key('filter')
         self.biasKwargs = kwargs['bias']
         self.filterKwargs = kwargs['filter']
+        assert not self.filterKwargs.has_key('shape')
 
     def init_bias(self):
         self.bias = init_shared(**self.biasKwargs)
+
+    def init_filters(self):
+        self.filters = []
+        for i in xrange(self.get_numOfFilters()):
+            self.filters.append( init_shared(shape=self.get_filterShape(), **self.filterKwargs) )
 
     def get_filterShape(self):
         return self.filterShape
 
     def get_numOfFilters(self):
         return len( self.get_preLayers() )
-
-    def init_filters(self):
-        self.filters = []
-        for i in xrange(self.get_numOfFilters()):
-            self.filters.append( init_shared(**self.filterKwargs) )
 
     def get_filters(self):
         return self.filters
@@ -58,22 +59,6 @@ class conv2DLayer(layer):
     def get_inputTensors(self):
         return self.inputTensors
 
-    def connect(self, *layers):
-        self.set_preLayers(layers)
-        self.init_filters()
-        self.outputShape = conv2D_shape( layers[0].get_outputShape(), self.get_filterShape() )
-        self.init_bias()
-
-        outputTensor = self.get_bias()
-        inputTensors = []
-        #one filter for every pre-layer
-        for i, filter in zip( xrange( self.get_numOfFilters() ), self.get_filters() ):
-            outputTensor = outputTensor + conv2d( layers[i].get_outputTensor(), filters=filter )
-            inputTensors.append( layers[i].get_outputTensor() )
-
-        self.set_outputTensor( outputTensor )
-        self.set_inputTensors( inputTensors )
-
     def get_inputShape(self):
         return ( len(self.get_preLayers()), self.get_preLayers()[0].get_outputShape[0], self.get_preLayers()[0].get_outputShape[1] )
 
@@ -92,6 +77,22 @@ class conv2DLayer(layer):
         paramList.append( self.get_bias() )
         return paramList
 
+    def connect(self, *layers):
+        self.set_preLayers(layers)
+        self.init_filters()
+        self.outputShape = conv2D_shape( layers[0].get_outputShape(), self.get_filterShape() )
+        self.init_bias()
+
+        outputTensor = self.get_bias()
+        inputTensors = []
+        #one filter for every pre-layer
+        for i, filter in zip( xrange( self.get_numOfFilters() ), self.get_filters() ):
+            outputTensor = outputTensor + conv2d( layers[i].get_outputTensor(), filters=filter )
+            inputTensors.append( layers[i].get_outputTensor() )
+
+        self.set_outputTensor( outputTensor )
+        self.set_inputTensors( inputTensors )
+
 class subSampleLayer(layer):
     def __init__(self, subSampleShape, **kwargs):
         layer.__init__(self)
@@ -108,6 +109,12 @@ class subSampleLayer(layer):
     def verify_shape(self):
         pass
 
+    def get_inputShape(self):
+        return self.intputShape
+
+    def get_outputShape(self):
+        return subSample_shape( self.get_inputShape(), self.subSampleShape )
+
     def connect(self, *layers):
         assert len(layers) == 1
         self.intputShape = layers[0].get_outputShape()
@@ -116,9 +123,3 @@ class subSampleLayer(layer):
         filter = np.ones( (1, 1) )
         outputTensor = self.coef * conv2d( self.get_inputTensor(), filters=filter, subsample=self.subSampleShape ) + self.bias
         self.set_outputTensor( outputTensor )
-
-    def get_inputShape(self):
-        return self.intputShape
-
-    def get_outputShape(self):
-        return subSample_shape( self.get_inputShape(), self.subSampleShape )

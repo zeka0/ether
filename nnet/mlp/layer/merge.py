@@ -19,19 +19,6 @@ class merge1DLayer(layer):
     def get_inputTensors(self):
         return self.inputTensors
 
-    def connect(self, *layers):
-        self.preLayers = layers
-        inputTensors = []
-        for layer in layers:
-            inputTensors.append( layer.get_outputTensor() )
-        if inputTensors[0].type == T.dscalar:
-            outputTensor = T.stack(*inputTensors)
-        else:
-            outputTensor = T.concatenate( inputTensors, axis=1 )
-        self.set_outputTensor( outputTensor )
-        self.set_inputTensors( inputTensors )
-        self.inputShape = layers[0].get_outputShape()
-
     def get_outputShape(self):
         return ( 1, len(self.get_preLayers()) * self.get_inputShape()[0] )
 
@@ -48,3 +35,16 @@ class merge1DLayer(layer):
         for layer in self.get_preLayers():
             if layer.get_outputShape() != baseShape:
                 raise shapeError(self, 'shape mis-match')
+
+    def connect(self, *layers):
+        self.preLayers = layers
+        inputTensors = []
+        for layer in layers:
+            inputTensors.append( layer.get_outputTensor() )
+        if inputTensors[0].type == T.dscalar:
+            outputTensor = T.stack(*inputTensors)
+        else:
+            outputTensor = T.concatenate( inputTensors, axis=1 )
+        self.set_outputTensor( outputTensor )
+        self.set_inputTensors( inputTensors )
+        self.inputShape = layers[0].get_outputShape()

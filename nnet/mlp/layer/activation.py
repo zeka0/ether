@@ -1,5 +1,5 @@
 from core import *
-from nnet.util import *
+from nnet.util.activation import *
 
 class activationLayer(layer):
     '''
@@ -13,13 +13,6 @@ class sigmoidLayer(activationLayer):
     def __init__(self):
         activationLayer.__init__(self)
 
-    def connect(self, *layers):
-        if len(layers) > 1:
-            raise connectException('sigmoid layer can only connect one layer')
-        self.outputShape = layers[0].get_outputShape()
-        self.set_inputTensor( layers[0].get_outputTensor )
-        self.set_outputTensor( sigmoid( self.get_inputTensor() ) )
-
     def get_inputShape(self):
         return self.get_outputShape()
 
@@ -32,6 +25,12 @@ class sigmoidLayer(activationLayer):
         '''
         if self.get_inputShape() != self.get_outputShape():
             raise shapeError(self)
+
+    def connect(self, *layers):
+        assert len(layers) == 1
+        self.outputShape = layers[0].get_outputShape()
+        self.set_inputTensor( layers[0].get_outputTensor )
+        self.set_outputTensor( sigmoid( self.get_inputTensor() ) )
 
 class tanhLayer(activationLayer):
     '''
@@ -42,12 +41,6 @@ class tanhLayer(activationLayer):
         self.A = A
         self.S = S
 
-    def connect(self, *layers):
-        assert len(layers) == 1
-        self.outputShape = layers[0].get_outputShape()
-        self.set_inputTensor( layers[0].get_outputTensor() )
-        self.set_outputTensor( self.A * T.tanh( self.S * self.get_inputTensor() ) )
-
     def verify_shape(self):
         '''
         sigmoid activation doesn't change the shape
@@ -61,16 +54,15 @@ class tanhLayer(activationLayer):
     def get_outputShape(self):
         return self.outputShape
 
+    def connect(self, *layers):
+        assert len(layers) == 1
+        self.outputShape = layers[0].get_outputShape()
+        self.set_inputTensor( layers[0].get_outputTensor() )
+        self.set_outputTensor( self.A * T.tanh( self.S * self.get_inputTensor() ) )
+
 class argmaxLayer(activationLayer):
     def __init__(self):
         activationLayer.__init__(self)
-
-    def connect(self, *layers):
-        assert len(layers) == 1
-        self.outputShape = (1, 1)
-        self.inputShape = layers[0].get_outputShape()
-        self.set_inputTensor( layers[0].get_outputTensor() )
-        self.set_outputTensor( argmax( self.get_inputTensor() ) )
 
     def get_inputShape(self):
         return self.inputShape
@@ -81,9 +73,25 @@ class argmaxLayer(activationLayer):
     def verify_shape(self):
         pass
 
+    def connect(self, *layers):
+        assert len(layers) == 1
+        self.outputShape = (1, 1)
+        self.inputShape = layers[0].get_outputShape()
+        self.set_inputTensor( layers[0].get_outputTensor() )
+        self.set_outputTensor( argmax( self.get_inputTensor() ) )
+
 class softmaxLayer(activationLayer):
     def __init__(self):
         activationLayer.__init__(self)
+
+    def get_inputShape(self):
+        return self.inputShape
+
+    def get_outputShape(self):
+        return self.get_inputShape()
+
+    def verify_shape(self):
+        pass
 
     def connect(self, *layers):
         assert len(layers) == 1
@@ -91,6 +99,10 @@ class softmaxLayer(activationLayer):
         self.set_inputTensor( layers[0].get_outputTensor() )
         self.set_outputTensor( softmax( self.get_inputTensor() ) )
 
+class minusLayer(activationLayer):
+    def __init__(self):
+        activationLayer.__init__(self)
+
     def get_inputShape(self):
         return self.inputShape
 
@@ -99,22 +111,9 @@ class softmaxLayer(activationLayer):
 
     def verify_shape(self):
         pass
-
-class minusLayer(activationLayer):
-    def __init__(self):
-        activationLayer.__init__(self)
 
     def connect(self, *layers):
         assert len(layers) == 1
         self.inputShape = layers[0].get_outputShape()
         self.set_inputTensor( layers[0].get_outputTensor() )
         self.set_outputTensor( -( self.get_inputTensor() ) )
-
-    def get_inputShape(self):
-        return self.inputShape
-
-    def get_outputShape(self):
-        return self.get_inputShape()
-
-    def verify_shape(self):
-        pass

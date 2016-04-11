@@ -30,12 +30,15 @@ class picFilter(filterBase):
     '''
     Change pixies to certain values
     '''
-    def filter(self, data):
+    def filter(self, data, grey_num, white_num):
+        '''
+        grey_num is to specify the number to substitute the grey pixies in the image.
+        white_num is to specify the number to substitute the white pixies in the image.
+        '''
         datax = data.get_attr()
         boolArr = (datax == 0)
-        #TODO:
-        datax[boolArr] = -1
+        datax[boolArr] = white_num
         boolArr = (boolArr == False) #reverse the boolArr
-        datax[boolArr] = 1
+        datax[boolArr] = grey_num
         data.reset_attr(datax)
         return data

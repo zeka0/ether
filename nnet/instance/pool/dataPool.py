@@ -11,16 +11,16 @@ class dataPool(object):
     def get_reader(self):
         return self.reader
 
-    def __pop_queue__(self, batchSize=1):
+    def pop_queue(self, batchSize=1):
         for i in xrange(batchSize):
             yield self.instance_queue.pop()
 
-    def __append_queue__(self, instances):
+    def append_queue(self, instances):
         if isinstance(instances, list):
             self.instance_queue.extend(instances)
         else: self.instance_queue.append(instances)
 
-    def __extend_queue__(self, gen):
+    def extend_queue(self, gen):
         self.instance_queue.extend(gen)
 
     def get_size(self):
@@ -37,7 +37,7 @@ class dataPool(object):
         '''
         Always returns a list
         '''
-        tmpHold=[ins for ins in self.__pop_queue__(batchSize)]
+        tmpHold=[ins for ins in self.pop_queue(batchSize)]
         return tmpHold
 
     def has_nextInstance(self, batchSize):
@@ -45,7 +45,7 @@ class dataPool(object):
         if hasNext: return True
         hasNext = self.reader.has_nextInstance(batchSize - self.get_size())
         if hasNext:
-            self.__extend_queue__( self.reader.read_instance(batchSize - self.get_size()) )
+            self.extend_queue( self.reader.read_instance(batchSize - self.get_size()) )
         return hasNext
 
     def drain_reader(self):
@@ -53,4 +53,4 @@ class dataPool(object):
         Read all instances in the reader
         '''
         if self.reader.has_nextInstance(1):
-            self.__append_queue__( self.reader.read_all() )
+            self.append_queue( self.reader.read_all() )

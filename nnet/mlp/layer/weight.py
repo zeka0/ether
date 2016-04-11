@@ -10,12 +10,12 @@ class weightLayer(layer):
     def __init__(self, numOfOutput, **kwargs):
         layer.__init__(self)
         self.numOfOutput = numOfOutput
-        self.init_bias()
         assert kwargs.has_key('weight')
         assert kwargs.has_key('bias')
         self.weightKwargs = kwargs['weight']
         self.biasKwargs = kwargs['bias']
         assert not self.weightKwargs.has_key('shape')
+        self.init_bias()
 
     def init_weights(self):
         self.weights = init_shared(shape=self.get_weightMatrixShape(), **self.weightKwargs)
@@ -28,14 +28,6 @@ class weightLayer(layer):
 
     def get_bias(self):
         return self.bias
-
-    def connect(self, *layers):
-        assert len(layers) == 1
-        self.inputShape = layers[0].get_outputShape()
-        self.set_inputTensor( layers[0].get_outputTensor() )
-        self.init_weights()
-        outputTensor = self.get_inputTensor().dot( self.get_weights() ) + self.get_bias()
-        self.set_outputTensor(outputTensor)
 
     def get_inputShape(self):
         return self.inputShape
@@ -55,3 +47,11 @@ class weightLayer(layer):
     def verify_shape(self):
         if len( self.get_inputShape() ) == 2:
             assert self.get_inputShape()[0] == 1
+
+    def connect(self, *layers):
+        assert len(layers) == 1
+        self.inputShape = layers[0].get_outputShape()
+        self.set_inputTensor( layers[0].get_outputTensor() )
+        self.init_weights()
+        outputTensor = self.get_inputTensor().dot( self.get_weights() ) + self.get_bias()
+        self.set_outputTensor(outputTensor)

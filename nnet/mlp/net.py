@@ -32,12 +32,8 @@ class nnet(object):
         return params
 
     def predict(self, attrVec):
-        return self.cal_output(attrVec)
-
-    def cal_output(self, attrVec):
         outputFunc = self.get_outputFunction()
-        predict = outputFunc(attrVec)
-        return predict #reshaping prediction
+        return outputFunc(attrVec)
 
     def get_inputTensor(self):
         return self.layers[0].get_inputTensor()

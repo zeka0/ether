@@ -12,13 +12,14 @@ def init_shared(**kwargs):
     distr means distribution
     '''
     assert kwargs.has_key('distr')
-    assert kwargs.has_key('shape')
     if kwargs['distr'] == 'normal':
         return normal_init_shared(**kwargs)
     elif kwargs['distr'] == 'uniform':
         return uniform_init_shared(**kwargs)
     elif kwargs['distr'] == 'scala':
         return scala_init_shared(**kwargs)
+    elif kwargs['distr'] == 'constant':
+        return constant_init_shared(**kwargs)
     else: raise NotImplementedError()
 
 def normal_init_shared(**kwargs):
@@ -35,13 +36,18 @@ def uniform_init_shared(**kwargs):
     high = kwargs['high']
     return theano.shared( np.random.uniform(low=low, high=high, size=shape) )
 
+def constant_init_shared(**kwargs):
+    shape = kwargs['shape']
+    shape = transform_shape(shape)
+    type = kwargs['type']
+    value = kwargs['value']
+    return theano.shared( type(value), size=shape )
+
 def scala_init_shared(**kwargs):
     '''
     type should be of python type
     eg, int, double
     '''
-    shape = kwargs['shape']
-    shape = transform_shape(shape)
     type = kwargs['type']
     value = kwargs['value']
     return theano.shared( type(value) )
