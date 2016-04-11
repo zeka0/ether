@@ -3,7 +3,7 @@ import numpy as np
 import theano
 from theano import tensor as T
 
-from nnet.util import util
+from nnet.util import controller
 
 '''
 The Layer is modeled after a graph
@@ -31,7 +31,7 @@ class layer:
         '''
         self.preLayer=anoLayer
         self.weights=theano.shared(
-            util.initWeightMatrix(self.preLayer.numOfUnits, self.numOfUnits),
+            controller.initWeightMatrix(self.preLayer.numOfUnits, self.numOfUnits),
             self.__generate_weightName(anoLayer)) #Sharing Weights
         inPuts=self.preLayer.get_outputTensor() #Connects graphs
         self.outputTensor=self.actFunc(inPuts.dot(self.weights)+ self.bias)

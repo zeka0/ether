@@ -1,22 +1,8 @@
+import numpy as np
 from theano.tensor.signal.conv import conv2d
-from theano import tensor as T
-import theano
-from nnet.util.shape import *
-
+from nnet.mlp.initialize import init_shared
 from core import *
-from nnet.mlp.initialize import *
-
-'''
-Personally I recommend using T.signal.conv2d instead of using T.nnet.conv2d
-Because it's much more simple, and more flexible than nnet.conv2d
-And it can be used to implement LeNet-5 with greater ease
-
-As for conv2DLayer and mergeLayer
-You can find that this two layers don't support the set_inputTensor and get_inputTensor
-But their conterparts are provided
-Since the layer-connection only requires the outputTensor
-These changes aren't harmful
-'''
+from nnet.util.shape import *
 
 class conv2DLayer(layer):
     '''
@@ -24,23 +10,30 @@ class conv2DLayer(layer):
     And in order to make several feature-maps out of a single 2D image
     Just create more conv2DLayer and make them connect to the image
     '''
-    def __init__(self, filterShape):
+    def __init__(self, filterShape, **kwargs):
         layer.__init__(self)
         if len( filterShape ) != 2:
             raise mlpException('wrong shape parameter in convolution layer')
         self.filterShape = filterShape
+        assert kwargs.has_key('bias')
+        assert kwargs.has_key('filter')
+        self.biasKwargs = kwargs['bias']
+        self.filterKwargs = kwargs['filter']
+        assert not self.filterKwargs.has_key('shape')
 
     def init_bias(self):
-        self.bias = shared.shared_ones( self.get_outputShape() )
+        self.bias = init_shared(**self.biasKwargs)
+
+    def init_filters(self):
+        self.filters = []
+        for i in xrange(self.get_numOfFilters()):
+            self.filters.append( init_shared(shape=self.get_filterShape(), **self.filterKwargs) )
 
     def get_filterShape(self):
         return self.filterShape
 
     def get_numOfFilters(self):
         return len( self.get_preLayers() )
-
-    def init_filters(self):
-        self.filters = normal.init_filters( self.get_numOfFilters(), self.get_filterShape() )
 
     def get_filters(self):
         return self.filters
@@ -66,22 +59,6 @@ class conv2DLayer(layer):
     def get_inputTensors(self):
         return self.inputTensors
 
-    def connect(self, *layers):
-        self.set_preLayers(layers)
-        self.init_filters()
-        self.outputShape = conv2D_shape( layers[0].get_outputShape(), self.get_filterShape() )
-        self.init_bias()
-
-        outputTensor = self.get_bias()
-        inputTensors = []
-        #one filter for every pre-layer
-        for i, filter in zip( xrange( self.get_numOfFilters() ), self.get_filters() ):
-            outputTensor += conv2d( layers[i].get_outputTensor(), filters=filter )
-            inputTensors.append( layers[i].get_outputTensor() )
-
-        self.set_outputTensor( outputTensor )
-        self.set_inputTensors( inputTensors )
-
     def get_inputShape(self):
         return ( len(self.get_preLayers()), self.get_preLayers()[0].get_outputShape[0], self.get_preLayers()[0].get_outputShape[1] )
 
@@ -100,17 +77,43 @@ class conv2DLayer(layer):
         paramList.append( self.get_bias() )
         return paramList
 
+    def connect(self, *layers):
+        self.set_preLayers(layers)
+        self.init_filters()
+        self.outputShape = conv2D_shape( layers[0].get_outputShape(), self.get_filterShape() )
+        self.init_bias()
+
+        outputTensor = self.get_bias()
+        inputTensors = []
+        #one filter for every pre-layer
+        for i, filter in zip( xrange( self.get_numOfFilters() ), self.get_filters() ):
+            outputTensor = outputTensor + conv2d( layers[i].get_outputTensor(), filters=filter )
+            inputTensors.append( layers[i].get_outputTensor() )
+
+        self.set_outputTensor( outputTensor )
+        self.set_inputTensors( inputTensors )
+
 class subSampleLayer(layer):
-    def __init__(self, subSampleShape):
+    def __init__(self, subSampleShape, **kwargs):
         layer.__init__(self)
         assert len(subSampleShape) == 2
         self.subSampleShape = subSampleShape
+        assert kwargs.has_key('coef')
+        assert kwargs.has_key('bias')
+        self.coef = init_shared(**kwargs['coef'])
+        self.bias = init_shared(**kwargs['bias'])
 
     def get_params(self):
-        return None
+        return [self.bias, self.coef]
 
     def verify_shape(self):
         pass
+
+    def get_inputShape(self):
+        return self.intputShape
+
+    def get_outputShape(self):
+        return subSample_shape( self.get_inputShape(), self.subSampleShape )
 
     def connect(self, *layers):
         assert len(layers) == 1
@@ -118,11 +121,5 @@ class subSampleLayer(layer):
 
         self.set_inputTensor( layers[0].get_outputTensor() )
         filter = np.ones( (1, 1) )
-        outputTensor = conv2d( self.get_inputTensor(), filters=filter, subsample=self.subSampleShape )
+        outputTensor = self.coef * conv2d( self.get_inputTensor(), filters=filter, subsample=self.subSampleShape ) + self.bias
         self.set_outputTensor( outputTensor )
-
-    def get_inputShape(self):
-        return self.intputShape
-
-    def get_outputShape(self):
-        return subSample_shape( self.get_inputShape(), self.subSampleShape )

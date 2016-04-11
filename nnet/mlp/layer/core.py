@@ -1,4 +1,5 @@
 from nnet.util import *
+from theano import tensor as T
 
 def merge_params(*params):
     paramList = []
@@ -51,12 +52,6 @@ class layer(object):
     def get_outputShape(self):
         raise NotImplementedError()
 
-    def connect(self, *layers):
-        '''
-        One layer may connect to multiple layers
-        '''
-        raise NotImplementedError()
-
     def verify_shape(self):
         '''
         Verify the connections
@@ -81,6 +76,12 @@ class layer(object):
         '''
         return self.get_params() is not None
 
+    def connect(self, *layers):
+        '''
+        One layer may connect to multiple layers
+        '''
+        raise NotImplementedError()
+
 class inputLayer(layer):
     '''
     A dummy layer for input
@@ -97,9 +98,6 @@ class inputLayer(layer):
     def get_params(self):
         return None
 
-    def connect(self, *layers):
-        raise connectException('inputLayer can\'t connect to other layers')
-
     def verify_shape(self):
         pass
 
@@ -108,3 +106,6 @@ class inputLayer(layer):
 
     def get_outputShape(self):
         return self.get_inputShape()
+
+    def connect(self, *layers):
+        raise connectException('inputLayer can\'t connect to other layers')
