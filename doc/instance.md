@@ -1,3 +1,6 @@
+###Introduction
+
+###Modulas & Classes
 ##class instance
 Class intance is used to provide a universal interface for the _dataPool_. Its sub-class __imgInstance__ will transform the scala class label to a vector which is suitable for the _classification_validator_.
 
