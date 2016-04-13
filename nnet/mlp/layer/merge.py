@@ -1,4 +1,5 @@
 from core import *
+from nnet.util.shape import flatten_shape
 
 class merge1DLayer(layer):
     def __init__(self):
@@ -48,3 +49,28 @@ class merge1DLayer(layer):
         self.set_outputTensor( outputTensor )
         self.set_inputTensors( inputTensors )
         self.inputShape = layers[0].get_outputShape()
+
+class flattenLayer(layer):
+    def __init__(self):
+        layer.__init__(self)
+
+    def verify_shape(self):
+        pass
+
+    def connect(self, *layers):
+        assert len(layers) == 1
+        self.set_inputTensor( layers[0].get_outputTensor() )
+        outputTensor = T.flatten( self.get_inputTensor(), outdim=1 )
+        self.inputShape = layers[0].get_outputShape()
+        self.outputShape = flatten_shape(self.inputShape)
+        outputTensor = T.reshape(outputTensor, newshape=self.outputShape)
+        self.set_outputTensor(outputTensor)
+
+    def get_params(self):
+        return None
+
+    def get_inputShape(self):
+        return self.inputShape
+
+    def get_outputShape(self):
+        return self.outputShape

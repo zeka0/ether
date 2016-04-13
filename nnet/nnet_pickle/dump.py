@@ -37,7 +37,7 @@ def dump_optimizer(opt):
             nnetController.set_owner(opt.get_opt(), net)#preserve the validity of the optimizer
 
 def dump_validator(val):
-    net = opt.get_owner()
+    net = val.get_owner()
     nnetController.set_owner(val, None)
     try:
         with open( get_validator_fpath(), 'wb' ) as fi:

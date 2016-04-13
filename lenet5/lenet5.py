@@ -7,7 +7,7 @@ filePath = r'E:\VirtualDesktop\lenet\double_mnist.pkl.gz'
 
 #Preparation
 mnist_reader = mnistDataReader(filePath, 10)
-ff = picFilter()
+ff = picFilter(grey_num=-1, white_num=1)
 db = filterPool( mnist_reader, ff )
 classifyVal = classifyValidator(argmin)
 opt = SGDOptimizer(lenet)
