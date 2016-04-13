@@ -1,4 +1,7 @@
 from exception import *
+'''
+This modula is used by the layer package to determine the shape of trainable parameters
+'''
 
 def conv2D_shape(imageShape, filterShape, mode='valid'):
     if len(imageShape) != 2:
@@ -21,3 +24,18 @@ def subSample_shape(imageShape, subSampleShape):
     assert imageShape[0] % subSampleShape[0] ==0
     assert imageShape[1] % subSampleShape[1] ==0
     return ( imageShape[0]/subSampleShape[0], imageShape[1]/subSampleShape[1] )
+
+def flatten_shape(oriShape, outdim=1):
+    assert isinstance(oriShape, tuple)
+    assert outdim >= 1
+    assert len(oriShape) >= outdim
+    outShape = []
+    for i in xrange(0, outdim - 1):
+        outShape.append( oriShape[i] )
+    lastDimSize = 1
+    for i in xrange(outdim - 1, len(oriShape)):
+        lastDimSize *= oriShape[i]
+    outShape.append(lastDimSize)
+    if len(outShape) > 1:
+        return tuple(outShape)
+    else: return (1, outShape[0])
