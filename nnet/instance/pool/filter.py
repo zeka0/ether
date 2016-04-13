@@ -8,13 +8,10 @@ class normFilter(filterBase):
     '''
     Normalize the values
     '''
-    def __init__(self, **kwargs):
-        assert kwargs.has_key('min')
-        assert kwargs.has_key('max')
-        assert kwargs.has_key('should_convert')
-        self.min = kwargs['min']
-        self.max = kwargs['max']
-        self.sdConvert = kwargs['should_convert']
+    def __init__(self, min, max, shouldConvert):
+        self.min = min
+        self.max = max
+        self.sdConvert = shouldConvert
 
     def filter(self, data):
         if isinstance(data, instance):
@@ -33,21 +30,15 @@ class picFilter(filterBase):
     '''
     Change pixies to certain values
     '''
-    def __init__(self, **kwargs):
-        assert kwargs.has_key('grey_num')
-        assert kwargs.has_key('white_num')
-        self.grey_num = kwargs['grey_num']
-        self.white_num = kwargs['white_num']
-
-    def filter(self, data):
+    def filter(self, data, grey_num, white_num):
         '''
         grey_num is to specify the number to substitute the grey pixies in the image.
         white_num is to specify the number to substitute the white pixies in the image.
         '''
         datax = data.get_attr()
         boolArr = (datax == 0)
-        datax[boolArr] = self.white_num
+        datax[boolArr] = white_num
         boolArr = (boolArr == False) #reverse the boolArr
-        datax[boolArr] = self.grey_num
+        datax[boolArr] = grey_num
         data.reset_attr(datax)
         return data

@@ -9,7 +9,7 @@ But don't worry, the trainer can be re-assembled later on.
 
 import os
 
-rootdir = r'E:\VirtualDesktop' #specifies the root directory which dump and load work
+rootdir = r'.' #specifies the root directory which dump and load work
 
 nnet_fname = 'nnet'
 optimizer_fname = 'optimizer'
