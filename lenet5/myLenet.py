@@ -2,18 +2,20 @@ from nnet import *
 import pickle
 
 debug = True
-track = True
+track = False
+valid_print = False
 picPath = r'E:\VirtualDesktop\lenet\kernels.pkl'
 filePath = r'E:\VirtualDesktop\lenet\double_mnist.pkl.gz'
 
 mnist_reader = mnistDataReader(filePath, 10)
-ff = picFilter(grey_num=1, white_num=0)
-db = filterPool( mnist_reader, ff )
+ff = picFilter(grey_num= 1, white_num= -1)
+fulldb = fullPool(mnist_reader.read_all(), True)
+db = filterPool( fulldb, ff )
 
 with open(picPath, 'rb') as f:
     kernels = pickle.load(f)
 
-filterInitDic = {'distr':'normal', 'std':1e-2, 'mean':0}
+filterInitDic = {'distr':'normal', 'std':1e-1, 'mean':0}
 biasInitDic = {'distr':'scala', 'type':float, 'value':0}
 coefInitDic = {'distr':'scala', 'type':float, 'value':1}
 
@@ -88,7 +90,7 @@ else:
 print 'Compling the trainer'
 tri.compile()
 print 'Training start'
-tri.train(100)
+tri.train(80000)
 
 nnet_fname = 'myLenet'
 optimizer_fname = 'myOpt'

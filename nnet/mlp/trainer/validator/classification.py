@@ -1,5 +1,8 @@
 from core import *
 
+#TODO
+valid_print = True
+
 def argmin(x):
     return T.argmin(x)
 
@@ -23,7 +26,8 @@ class classifyValidator(validator):
         '''
         print 'Predict\n', predict
         index = self.validation_function(predict)#The returned value is a ndarray
-        print 'Predicted Index', index
+        if valid_print:
+            print 'Predicted Index', index
         if isinstance(target, int):
             return target == index
         else: return target[index] == 1

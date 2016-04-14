@@ -11,3 +11,7 @@ Kernels are used for __fixedGausiRbfLayer__.
 ###Lenet5
 The file can be found in `\lenet5\lenet5.py`.
 `\lenet5\lenet5S_track.py` is a simplified form of lenet5 and can track down the training process.
+
+###MyLenet
+The file `myLenet.py` is a rather smaller version of __lenet5__. It can be trained really quickly and effectively.
+However, the error rate of it isn't very promising.

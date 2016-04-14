@@ -4,7 +4,8 @@ import numpy as np
 import pickle
 from nnet.util.shape import *
 
-for i in xrange(4, 2):
-    print 'Not print'
-
-print flatten_shape((3,4))
+x = np.ones((3,4))
+y = 3*x
+print type(x)
+print type(y)
+print 'End'
