@@ -12,13 +12,8 @@ def readMnist(filePath):
         return x
 
 import numpy as np
+path = r'E:\VirtualDesktop\lenet\normed_double_mnist.pkl.gz'
 
 if __name__ == '__main__':
-    xData = readMnist( r'E:\VirtualDesktop\lenet\mnist.pkl.gz' )
-    xImags = np.vstack( ( xData[0][0], xData[1][0] ) )
-    xTargs = np.hstack( ( xData[0][1], xData[1][1] ) )
-    xUniqTargs = np.unique( xTargs )
-
-    picf = picFilter(0, 255, True)
-    f_xImage = picf.filter(xImags[0])
-    print f_xImage
+    xData = readMnist( path )
+    print 'End'

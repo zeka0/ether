@@ -1,5 +1,11 @@
 import numpy as np
 from nnet.instance.instance import instance
+
+'''
+If you don't want to filter the instances
+Simply use other pools
+'''
+
 class filterBase:
     def filter(self, data):
         raise NotImplementedError()
@@ -50,4 +56,12 @@ class picFilter(filterBase):
         boolArr = (boolArr == False) #reverse the boolArr
         datax[boolArr] = self.grey_num
         data.reset_attr(datax)
+        return data
+
+class dimFilter(filterBase):
+    def __init__(self, neo_shape):
+        self.neo_shape = neo_shape
+
+    def filter(self, data):
+        data.reset_attr(data.get_attr().reshape(self.neo_shape))
         return data

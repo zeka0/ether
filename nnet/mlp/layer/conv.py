@@ -28,11 +28,11 @@ class conv2DLayer(layer):
         assert not self.biasKwargs.has_key('shape')
         assert not self.biasKwargs['distr'] == 'scala'
 
-    def init_bias(self, n_pre_fm):
+    def init_bias(self):
         '''
-        n_pre_fm represents number of the previous featuremaps
+        :var n_fm means the number of this layer's feature maps
         '''
-        self.bias = init_shared(**self.biasKwargs)
+        self.bias = init_shared(shape=(self.n_fm,), **self.biasKwargs)
 
     def init_filters(self, n_pre_fm):
         self.filterShape = (self.n_fm, n_pre_fm) + self.filterDs
@@ -57,20 +57,21 @@ class conv2DLayer(layer):
         assert len(layers) == 1
         self.inputShape = layers[0].get_outputShape()
         assert len(self.inputShape) == 4
-        assert self.inputShape[0] == 1
-
         self.set_inputTensor(layers[0].get_outputTensor())
+
+        #compute outputTensor
         n_pre_fm = self.inputShape[1]
         self.init_filters(n_pre_fm)
-        self.init_bias(n_pre_fm)
-        outputTensor = self.bias + T.nnet.conv2d(input=self.get_inputTensor(), filters=self.filters, border_mode=self.border_mode)
+        self.init_bias()
+        outputTensor = self.bias.dimshuffle('x', 0, 'x', 'x') + T.nnet.conv2d(input=self.get_inputTensor(), filters=self.filters, border_mode=self.border_mode)
         self.set_outputTensor( outputTensor )
 
-        out_img_shape = conv2D_shape(self.inputShape[2,3], self.filterDs, self.border_mode)
+        #caculate shape
+        out_img_shape = conv2D_shape((self.inputShape[2], self.inputShape[3]), self.filterDs, self.border_mode)
         self.outputShape = (self.inputShape[0], self.n_fm) + out_img_shape
 
 class maxPoolLayer(layer):
-    def __init__(self, poolShape, ignore_border, **kwargs):
+    def __init__(self, poolShape, ignore_border):
         layer.__init__(self)
         self.ignore_border = ignore_border
         assert len(poolShape) == 2

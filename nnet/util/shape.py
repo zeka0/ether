@@ -15,7 +15,8 @@ def conv2D_shape(imageShape, filterShape, mode):
     elif mode == 'full':
         return ( imageShape[0] + filterShape[0] - 1, imageShape[1] + filterShape[1] - 1 )
 
-def weightMatrix_shape(inputShape, connectionNum):
+#TODO:deprecate
+def weight_shape(inputShape, connectionNum):
     assert len(inputShape) == 2
     return (inputShape[0], connectionNum)
 
@@ -31,12 +32,11 @@ def maxPool_shape(imageShape, poolShape, ignore_border):
     assert len(imageShape) ==2
     assert len(poolShape) ==2
     if ignore_border:
-        return ( np.floor( float(imageShape[0])/poolShape[0] ), np.floor( float(imageShape[1])/imageShape[1] ) )
+        return ( int( np.floor( float(imageShape[0])/poolShape[0] ) ), int( np.floor( float(imageShape[1])/poolShape[1] ) ) )
     else:
-        return ( np.ceil( float(imageShape[0])/poolShape[0] ), np.ceil( float(imageShape[1])/imageShape[1] ) )
+        return ( int( np.ceil( float(imageShape[0])/poolShape[0] ) ), int( np.ceil( float(imageShape[1])/poolShape[1] ) ) )
 
 def flatten_shape(oriShape, outdim=1):
-    assert isinstance(oriShape, tuple)
     assert outdim >= 1
     assert len(oriShape) >= outdim
     outShape = []
@@ -51,5 +51,10 @@ def flatten_shape(oriShape, outdim=1):
     else: return (1, outShape[0])
 
 def dimShuffle_shape(oriShape, *pattern):
-    #TODO
-    pass
+    outShape = np.ones( (len(pattern), ), dtype=np.int )
+    for i in xrange(len(pattern)):
+        if pattern[i] == 'x':
+            outShape[i] = 1
+        else:
+            outShape[i] = oriShape[ pattern[i] ]
+    return tuple( outShape )

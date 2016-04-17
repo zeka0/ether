@@ -40,7 +40,7 @@ def constant_init_shared(**kwargs):
     shape = kwargs['shape']
     shape = transform_shape(shape)
     value = kwargs['value']
-    return theano.shared( value * np.ones(shape), size=shape )
+    return theano.shared( value * np.ones(shape) )
 
 def scala_init_shared(**kwargs):
     '''

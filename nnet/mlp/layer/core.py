@@ -82,7 +82,13 @@ class inputLayer(layer):
         self.init_input(inputShape)
 
     def init_input(self, inputShape):
-        self.set_inputTensor( T.matrix() )
+        assert len(inputShape) >= 2 and len(inputShape) <=4
+        if len(inputShape) == 2:
+            self.set_inputTensor( T.matrix() )
+        elif len(inputShape) == 3:
+            self.set_inputTensor( T.tensor3() )
+        else:
+            self.set_inputTensor( T.tensor4() )
         self.set_outputTensor( self.get_inputTensor() )
         self.inputShape = inputShape
 

@@ -1,13 +1,24 @@
 ##Author - Alphasis Zeka
+__OMG I have finally built my first ever lenet!!!__
+
 ###Pre-note
 - Docs can be found in `\doc`
-- I am playing __Metal Gear Solid V__ now, it's really a good game.
 - The files in the directory `\deprecated` are from older versions.
 
 ###Introduction:
 - It's a __theano__-based neural-network.
 - Required modulas include: __numpy__, __theano__.
 - It's a little bit complicated to learn to use at first.
+- Before you start using the nnet, plz read the __Rules & Cautions__ blocks below.
+
+###Version notes
+In this version, I have replaced the old _signal.conv2d_. 
+Because though this version provides you with more flexibilities, it's considerably slower than _T.nnet.conv2d_.
+And also, I have restrained the rules.
+
+###Future Improvements
+Fix some __batch size dimension__ not supported. It's in the _loss modula_. 
+Investigate _bias in weightLayer and conv2dLayer_.
 
 ##Notes From Author:
 - Neural network is really tough to learn.
@@ -19,3 +30,13 @@
 - It's strongly recommended to read the `doc` before using this project.
 - If you have never touched __numpy__ or __theano__ before, I suggest you to try them out yourself a little bit.
 It's because sometimes when you find a bug, having some knowledge of them can help great lot.
+- __Global variables in python are tricky to use.__ You should avoid them as early as possible.
+However, just like their counterparts in cpp, you can __provide scope for the global variables to operate.__
+This can be done by importing only the modula instead of all the contents of the modula and use the syntax:
+```python
+import core
+core.root_dir = 'C:\'
+```
+
+##Rules
+- The input to the nnet should contain a dimension represent the _batch size_.

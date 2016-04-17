@@ -13,7 +13,7 @@ class dimShuffelLayer(layer):
         return self.outputShape
 
     def connect(self, *layers):
-        assert len(layers) == 0
+        assert len(layers) == 1
         self.inputShape = layers[0].get_inputShape()
         self.set_inputTensor( layers[0].get_outputTensor() )
         outputTensor = self.get_inputTensor().dimshuffle(*self.pattern)

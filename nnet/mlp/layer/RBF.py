@@ -4,6 +4,7 @@ from nnet.mlp.initialize import init_shared
 def gausi_rbf(rbflayer):
     return ( T.pow( rbflayer.get_kernels() - rbflayer.get_inputTensor(), 2 ) ).sum()
 
+#TODO: support mini-batch
 class RBFLayer(layer):
     '''
     This class implements the naivest version of the RDF
