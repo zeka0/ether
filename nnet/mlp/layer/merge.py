@@ -21,6 +21,7 @@ class merge1DLayer(layer):
         return self.inputTensors
 
     def get_outputShape(self):
+        #TODO: support mini_batch
         return ( 1, len(self.get_preLayers()) * self.get_inputShape()[0] )
 
     def get_inputShape(self):
@@ -31,8 +32,6 @@ class merge1DLayer(layer):
 
     def verify_shape(self):
         baseShape = self.get_preLayers()[0].get_outputShape()
-        if len(baseShape) == 2:
-            assert baseShape[0] == 1 #we treat vector as a horizontal one
         for layer in self.get_preLayers():
             if layer.get_outputShape() != baseShape:
                 raise shapeError(self, 'shape mis-match')

@@ -36,17 +36,13 @@ class weightLayer(layer):
         return weightMatrix_shape( self.get_inputShape(), self.numOfOutput)
 
     def get_outputShape(self):
-        return ( 1, self.numOfOutput )
+        return ( self.inputShape[0], self.numOfOutput )
 
     def get_params(self):
         paramList = []
         paramList.append( self.get_weights() )
         paramList.append( self.get_bias() )
         return paramList
-
-    def verify_shape(self):
-        if len( self.get_inputShape() ) == 2:
-            assert self.get_inputShape()[0] == 1
 
     def connect(self, *layers):
         assert len(layers) == 1

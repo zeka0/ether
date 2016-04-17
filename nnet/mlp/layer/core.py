@@ -52,15 +52,6 @@ class layer(object):
     def get_outputShape(self):
         raise NotImplementedError()
 
-    def verify_shape(self):
-        '''
-        Verify the connections
-        Test if the shape is consistent
-        A good implementation should take it into consideration that (1, 1) and (1) represent the exactly same shape
-        For 1-dim shape, the form should be of (1, x) as we always treat the vector as a horizontal one
-        '''
-        raise NotImplementedError()
-
     def get_params(self):
         '''
         Subclasses should override this method to provide the parameters required to update

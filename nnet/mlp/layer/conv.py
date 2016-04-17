@@ -1,8 +1,8 @@
 import numpy as np
-from theano.tensor.signal.conv import conv2d
 from nnet.mlp.initialize import init_shared
-from core import *
+from nnet.mlp.layer.core import *
 from nnet.util.shape import *
+from theano.tensor.signal.downsample import max_pool_2d
 
 class conv2DLayer(layer):
     '''
@@ -10,116 +10,88 @@ class conv2DLayer(layer):
     And in order to make several feature-maps out of a single 2D image
     Just create more conv2DLayer and make them connect to the image
     '''
-    def __init__(self, filterShape, **kwargs):
+    def __init__(self, n_fm, filterShape, border_mode, **kwargs):
+        '''
+        the bias can't be a scala
+        '''
         layer.__init__(self)
-        if len( filterShape ) != 2:
-            raise mlpException('wrong shape parameter in convolution layer')
-        self.filterShape = filterShape
+        assert len(filterShape) == 2
+        self.filterDs = filterShape
+        self.n_fm = n_fm
+        self.border_mode = border_mode
+
         assert kwargs.has_key('bias')
         assert kwargs.has_key('filter')
         self.biasKwargs = kwargs['bias']
         self.filterKwargs = kwargs['filter']
         assert not self.filterKwargs.has_key('shape')
+        assert not self.biasKwargs.has_key('shape')
+        assert not self.biasKwargs['distr'] == 'scala'
 
-    def init_bias(self):
+    def init_bias(self, n_pre_fm):
+        '''
+        n_pre_fm represents number of the previous featuremaps
+        '''
         self.bias = init_shared(**self.biasKwargs)
 
-    def init_filters(self):
-        self.filters = []
-        for i in xrange(self.get_numOfFilters()):
-            self.filters.append( init_shared(shape=self.get_filterShape(), **self.filterKwargs) )
+    def init_filters(self, n_pre_fm):
+        self.filterShape = (self.n_fm, n_pre_fm) + self.filterDs
+        self.filters = init_shared(shape=self.get_filterShape(), **self.filterKwargs)
 
     def get_filterShape(self):
         return self.filterShape
 
-    def get_numOfFilters(self):
-        return len( self.get_preLayers() )
-
-    def get_filters(self):
-        return self.filters
-
-    def get_bias(self):
-        return self.bias
-
-    def get_preLayers(self):
-        return self.preLayers
-
-    def set_preLayers(self, layers):
-        self.preLayers = layers
-
-    def set_inputTensor(self, inputTensor):
-        raise NotImplementedError('conv2DLayer has multiple inputTensors')
-
-    def get_inputTensor(self):
-        raise NotImplementedError('conv2DLayer has multiple inputTensors')
-
-    def set_inputTensors(self, inputTensors):
-        self.inputTensors = inputTensors
-
-    def get_inputTensors(self):
-        return self.inputTensors
-
     def get_inputShape(self):
-        return ( len(self.get_preLayers()), self.get_preLayers()[0].get_outputShape[0], self.get_preLayers()[0].get_outputShape[1] )
+        return self.inputShape
 
     def get_outputShape(self):
         return self.outputShape
 
-    def verify_shape(self):
-        baseShape = self.get_preLayers()[0].get_outputShape()
-        for layer in self.get_preLayers():
-            if layer.get_outputShape() != baseShape:
-                raise shapeError(self, 'conv2D pre-layers\'shape must be the same')
-
     def get_params(self):
         paramList = []
-        paramList.extend( self.get_filters() )
-        paramList.append( self.get_bias() )
+        paramList.append( self.filters )
+        paramList.append( self.bias )
         return paramList
 
     def connect(self, *layers):
-        self.set_preLayers(layers)
-        self.init_filters()
-        self.outputShape = conv2D_shape( layers[0].get_outputShape(), self.get_filterShape() )
-        self.init_bias()
+        assert len(layers) == 1
+        self.inputShape = layers[0].get_outputShape()
+        assert len(self.inputShape) == 4
+        assert self.inputShape[0] == 1
 
-        outputTensor = self.get_bias()
-        inputTensors = []
-        #one filter for every pre-layer
-        for i, filter in zip( xrange( self.get_numOfFilters() ), self.get_filters() ):
-            outputTensor = outputTensor + conv2d( layers[i].get_outputTensor(), filters=filter )
-            inputTensors.append( layers[i].get_outputTensor() )
-
+        self.set_inputTensor(layers[0].get_outputTensor())
+        n_pre_fm = self.inputShape[1]
+        self.init_filters(n_pre_fm)
+        self.init_bias(n_pre_fm)
+        outputTensor = self.bias + T.nnet.conv2d(input=self.get_inputTensor(), filters=self.filters, border_mode=self.border_mode)
         self.set_outputTensor( outputTensor )
-        self.set_inputTensors( inputTensors )
 
-class subSampleLayer(layer):
-    def __init__(self, subSampleShape, **kwargs):
+        out_img_shape = conv2D_shape(self.inputShape[2,3], self.filterDs, self.border_mode)
+        self.outputShape = (self.inputShape[0], self.n_fm) + out_img_shape
+
+class maxPoolLayer(layer):
+    def __init__(self, poolShape, ignore_border, **kwargs):
         layer.__init__(self)
-        assert len(subSampleShape) == 2
-        self.subSampleShape = subSampleShape
-        assert kwargs.has_key('coef')
-        assert kwargs.has_key('bias')
-        self.coef = init_shared(**kwargs['coef'])
-        self.bias = init_shared(**kwargs['bias'])
+        self.ignore_border = ignore_border
+        assert len(poolShape) == 2
+        self.poolShape = poolShape
 
     def get_params(self):
-        return [self.bias, self.coef]
-
-    def verify_shape(self):
-        pass
+        return None
 
     def get_inputShape(self):
-        return self.intputShape
+        return self.inputShape
 
     def get_outputShape(self):
-        return subSample_shape( self.get_inputShape(), self.subSampleShape )
+        return self.outputShape
 
     def connect(self, *layers):
         assert len(layers) == 1
-        self.intputShape = layers[0].get_outputShape()
+        self.inputShape = layers[0].get_outputShape()
+        assert len(self.inputShape) >= 2
 
         self.set_inputTensor( layers[0].get_outputTensor() )
-        filter = np.ones( (1, 1) )
-        outputTensor = self.coef * conv2d( self.get_inputTensor(), filters=filter, subsample=self.subSampleShape ) + self.bias
+        outputTensor = max_pool_2d(self.get_inputTensor(), ds=self.poolShape, ignore_border=self.ignore_border)
         self.set_outputTensor( outputTensor )
+        pool_shape = maxPool_shape( ( self.inputShape[-2], self.inputShape[-1]) , self.poolShape, self.ignore_border )
+        self.outputShape = self.inputShape[0:-2] + pool_shape

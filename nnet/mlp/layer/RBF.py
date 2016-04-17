@@ -32,9 +32,6 @@ class RBFLayer(layer):
     def get_outputShape(self):
         return (1, 1)
 
-    def verify_shape(self):
-        pass
-
     def connect(self, *layers):
         assert len(layers) == 1
         self.intputShape = layers[0].get_outputShape()
