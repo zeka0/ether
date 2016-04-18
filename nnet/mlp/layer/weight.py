@@ -2,7 +2,6 @@ from core import *
 from nnet.util.shape import *
 from nnet.mlp.initialize import init_shared
 
-
 class weightLayer(layer):
     '''
     We can view weight-layer as a conv1D layer
@@ -18,10 +17,10 @@ class weightLayer(layer):
         self.init_bias()
 
     def init_weights(self):
-        self.weights = init_shared(shape=self.get_weightMatrixShape(), **self.weightKwargs)
+        self.weights = init_shared(shape=self.get_weightShape(), **self.weightKwargs)
 
     def init_bias(self):
-        self.bias = init_shared(**self.biasKwargs)
+        self.bias = init_shared(shape=(1,), **self.biasKwargs)
 
     def get_weights(self):
         return self.weights
@@ -32,11 +31,11 @@ class weightLayer(layer):
     def get_inputShape(self):
         return self.inputShape
 
-    def get_weightMatrixShape(self):
-        return weightMatrix_shape( self.get_inputShape(), self.numOfOutput)
+    def get_weightShape(self):
+        return (self.get_inputShape()[1], self.numOfOutput)
 
     def get_outputShape(self):
-        return ( 1, self.numOfOutput )
+        return ( self.inputShape[0], self.numOfOutput )
 
     def get_params(self):
         paramList = []
@@ -44,13 +43,10 @@ class weightLayer(layer):
         paramList.append( self.get_bias() )
         return paramList
 
-    def verify_shape(self):
-        if len( self.get_inputShape() ) == 2:
-            assert self.get_inputShape()[0] == 1
-
     def connect(self, *layers):
         assert len(layers) == 1
         self.inputShape = layers[0].get_outputShape()
+        assert len(self.inputShape) == 2
         self.set_inputTensor( layers[0].get_outputTensor() )
         self.init_weights()
         outputTensor = self.get_inputTensor().dot( self.get_weights() ) + self.get_bias()

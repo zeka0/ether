@@ -1,7 +1,9 @@
 from collections import deque
+from core import poolBase
 
-class dataPool(object):
+class deqPool(poolBase):
     def __init__(self, reader):
+        poolBase.__init__(self)
         self.instance_queue = deque()
         self.set_reader(reader)
 

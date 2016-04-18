@@ -39,9 +39,8 @@ def uniform_init_shared(**kwargs):
 def constant_init_shared(**kwargs):
     shape = kwargs['shape']
     shape = transform_shape(shape)
-    type = kwargs['type']
     value = kwargs['value']
-    return theano.shared( type(value), size=shape )
+    return theano.shared( value * np.ones(shape) )
 
 def scala_init_shared(**kwargs):
     '''

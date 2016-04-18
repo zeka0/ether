@@ -9,7 +9,7 @@ class nnet(object):
     '''
     def __init__(self, layers):
         self.set_layers( layers )
-        self.targetTensor=T.vector('T')
+        self.targetTensor=T.vector()
 
     def set_layers(self, layers):
         '''

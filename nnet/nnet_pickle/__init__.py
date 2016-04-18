@@ -1,5 +1,5 @@
-from dump import dump_trainer
+from dump import *
 
-from load import load_trainer
+from load import *
 
 from core import nnet_fname, optimizer_fname, validator_fname, rootdir

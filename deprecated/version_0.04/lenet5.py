@@ -5,10 +5,10 @@ debug = True
 picPath = r'E:\VirtualDesktop\lenet\kernels.pkl'
 filePath = r'E:\VirtualDesktop\lenet\double_mnist.pkl.gz'
 
-#Preparation
 mnist_reader = mnistDataReader(filePath, 10)
-ff = picFilter()
-db = filterPool( mnist_reader, ff )
+ff = picFilter(grey_num=-1, white_num=1)
+deqb = deqPool(mnist_reader)
+db = filterPool( deqb, ff )
 classifyVal = classifyValidator(argmin)
 opt = SGDOptimizer(lenet)
 

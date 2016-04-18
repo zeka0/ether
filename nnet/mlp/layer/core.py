@@ -52,15 +52,6 @@ class layer(object):
     def get_outputShape(self):
         raise NotImplementedError()
 
-    def verify_shape(self):
-        '''
-        Verify the connections
-        Test if the shape is consistent
-        A good implementation should take it into consideration that (1, 1) and (1) represent the exactly same shape
-        For 1-dim shape, the form should be of (1, x) as we always treat the vector as a horizontal one
-        '''
-        raise NotImplementedError()
-
     def get_params(self):
         '''
         Subclasses should override this method to provide the parameters required to update
@@ -91,7 +82,13 @@ class inputLayer(layer):
         self.init_input(inputShape)
 
     def init_input(self, inputShape):
-        self.set_inputTensor( T.matrix() )
+        assert len(inputShape) >= 2 and len(inputShape) <=4
+        if len(inputShape) == 2:
+            self.set_inputTensor( T.matrix() )
+        elif len(inputShape) == 3:
+            self.set_inputTensor( T.tensor3() )
+        else:
+            self.set_inputTensor( T.tensor4() )
         self.set_outputTensor( self.get_inputTensor() )
         self.inputShape = inputShape
 

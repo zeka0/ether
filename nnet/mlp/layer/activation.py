@@ -19,13 +19,6 @@ class sigmoidLayer(activationLayer):
     def get_outputShape(self):
         return self.outputShape
 
-    def verify_shape(self):
-        '''
-        sigmoid activation doesn't change the shape
-        '''
-        if self.get_inputShape() != self.get_outputShape():
-            raise shapeError(self)
-
     def connect(self, *layers):
         assert len(layers) == 1
         self.outputShape = layers[0].get_outputShape()
@@ -40,13 +33,6 @@ class tanhLayer(activationLayer):
         activationLayer.__init__(self)
         self.A = A
         self.S = S
-
-    def verify_shape(self):
-        '''
-        sigmoid activation doesn't change the shape
-        '''
-        if self.get_inputShape() != self.get_outputShape():
-            raise shapeError(self)
 
     def get_inputShape(self):
         return self.get_outputShape()
@@ -70,9 +56,6 @@ class argmaxLayer(activationLayer):
     def get_outputShape(self):
         return self.outputShape
 
-    def verify_shape(self):
-        pass
-
     def connect(self, *layers):
         assert len(layers) == 1
         self.outputShape = (1, 1)
@@ -90,9 +73,6 @@ class softmaxLayer(activationLayer):
     def get_outputShape(self):
         return self.get_inputShape()
 
-    def verify_shape(self):
-        pass
-
     def connect(self, *layers):
         assert len(layers) == 1
         self.inputShape = layers[0].get_outputShape()
@@ -108,9 +88,6 @@ class minusLayer(activationLayer):
 
     def get_outputShape(self):
         return self.get_inputShape()
-
-    def verify_shape(self):
-        pass
 
     def connect(self, *layers):
         assert len(layers) == 1
