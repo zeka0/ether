@@ -15,6 +15,19 @@ def conv2D_shape(imageShape, filterShape, mode):
     elif mode == 'full':
         return ( imageShape[0] + filterShape[0] - 1, imageShape[1] + filterShape[1] - 1 )
 
+#TODO:deprecate
+def weight_shape(inputShape, connectionNum):
+    assert len(inputShape) == 2
+    return (inputShape[0], connectionNum)
+
+#TODO:deprecate
+def subSample_shape(imageShape, subSampleShape):
+    assert len(imageShape) ==2
+    assert len(subSampleShape) ==2
+    assert imageShape[0] % subSampleShape[0] ==0
+    assert imageShape[1] % subSampleShape[1] ==0
+    return ( imageShape[0]/subSampleShape[0], imageShape[1]/subSampleShape[1] )
+
 def maxPool_shape(imageShape, poolShape, ignore_border):
     assert len(imageShape) ==2
     assert len(poolShape) ==2

@@ -38,7 +38,7 @@ print 'compling the trainer'
 tri.compile()
 #training
 print 'training start'
-tri.train(20000)
+tri.train(40000)
 
 dump_trainer(tri)
 

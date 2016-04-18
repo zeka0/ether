@@ -17,8 +17,7 @@ Because though this version provides you with more flexibilities, it's considera
 And also, I have restrained the rules.
 
 ###Future Improvements
-Fix some __batch size dimension__ not supported. It's in the _loss modula_. 
-Investigate _bias in weightLayer and conv2dLayer_.
+Add the recurrent layer.
 
 ##Notes From Author:
 - Neural network is really tough to learn.
@@ -40,3 +39,6 @@ core.root_dir = 'C:\'
 
 ##Rules
 - The input to the nnet should contain a dimension represent the _batch size_.
+- The __mini-batch__ isn't supported.
+However, you may see some implementations of the layers support the mini-batch, it's not supported in the optimizer.
+Thought this could mean that the computation could be slower, the mini-batch can be simulated anyway.

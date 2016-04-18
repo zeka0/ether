@@ -1,5 +1,5 @@
 from conv import *
-from RBF import *
+from rbf import *
 from activation import *
 from core import inputLayer
 from merge import *
