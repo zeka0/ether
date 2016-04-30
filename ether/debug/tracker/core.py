@@ -1,12 +1,11 @@
-from ether.component.model.controller import nnetController
+from ether.component.model.controller import controller
 
-class tracker(nnetController):
+class tracker(controller):
     def __init__(self, opt, stride=0):
         '''
         stride sepcifies how many steps the tracker should ignore before recording anything
         however, the first training will always be recorded
         '''
-        nnetController.__init__(self)
         self.set_opt(opt)
         self.trackDic = dict()
         assert stride >= 0
@@ -20,7 +19,7 @@ class tracker(nnetController):
         self.optimizer = opt
 
     def set_owner(self, nnet):
-        nnetController.set_owner(self, nnet)
+        controller.set_owner(self, nnet)
         '''
         Be cautious that the init_track is called before the optimizer is actually set to nnet
         That means all the methods in base nnetController is invalid

@@ -1,5 +1,4 @@
-from optimizer import *
-
+from theano import tensor as T
 def sqrt_mean(opt):
     return T.sqrt( opt.get_targetTensor() - opt.get_outputTensor() ).sum()
 

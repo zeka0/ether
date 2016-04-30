@@ -63,7 +63,7 @@ class nnet(model):
             self.gparams = []
             grads = T.grad(self.get_cost(), self.get_params())
             for grad, para in zip(grads, self.get_params()):
-                self.gparams += (grad, para)
+                self.gparams.append((grad, para))
         return self.gparams
 
     def compile(self):

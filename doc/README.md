@@ -1,3 +1,8 @@
+##Version-Notes
+The current version is radically different from previous version.
+First of all, I must say sorry to the interface-changes all around the library.
+It's because I have to accomondate new models, i.e, RBM into the scope of the library.
+
 ##Introduction
 - __Introduction of packages__ are in:
   1. `\instance.md`

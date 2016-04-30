@@ -109,12 +109,12 @@ class biasLayer(layer):
     def __init__(self, **biasKwargs):
         layer.__init__(self)
         self.biasKwargs = biasKwargs
-        self.bias = init_shared(shape=(1,), **self.biasKwargs)
+        self.b = init_shared(shape=(1,), **self.biasKwargs)
 
     def connect(self, *layers):
         assert len(layers) == 1
         self.set_inputTensor(layers[0].get_outputTensor())
-        self.set_outputTensor( self.get_inputTensor() + self.bias )
+        self.set_outputTensor( self.get_inputTensor() + self.b )
         self.inputShape = layers[0].get_outputShape()
 
     def get_inputShape(self):
@@ -124,4 +124,4 @@ class biasLayer(layer):
         return self.get_inputShape()
 
     def get_params(self):
-        return [self.biasi]
+        return [self.b]

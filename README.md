@@ -1,6 +1,5 @@
 #Author - Alphasis Zeka
-##Whose English Name is Ether Wei
-__OMG I have finally built my first ever lenet!!!__
+##Ether Wei presents
 
 ###Pre-note
 - Docs can be found in `\doc`
@@ -34,13 +33,6 @@ And also, I have restrained the rules.
 - It's strongly recommended to read the `doc` before using this project.
 - If you have never touched __numpy__ or __theano__ before, I suggest you to try them out yourself a little bit.
 It's because sometimes when you find a bug, having some knowledge of them can help great lot.
-- __Global variables in python are tricky to use.__ You should avoid them as early as possible.
-However, just like their counterparts in cpp, you can __provide scope for the global variables to operate.__
-This can be done by importing only the modula instead of all the contents of the modula and use the syntax:
-```python
-import core
-core.root_dir = 'C:\'
-```
 
 ##Rules
 - The input to the nnet should contain a dimension represent the _batch size_.

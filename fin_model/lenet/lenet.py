@@ -8,7 +8,7 @@ db = fullPool(mnist_reader.read_all(), True)
 ff = dimFilter((1, 1, 28, 28))
 db = filterPool(db, ff)
 classifyVal = classifyValidator(argmax)
-opt = SGDOptimizer(negtive_log)
+opt = SGDOptimizer()
 
 biasInitDic = {'distr':'constant', 'value':0.}
 weightBiasInitDic = {'distr':'scala', 'value':0, 'type':float}
@@ -31,8 +31,8 @@ for i in xrange(len(layers) - 1):
 for l in layers:
     print l.get_outputShape()
 #Put together
-n_net = nnet(layers)
-tri = net_trainer(db, opt, classifyVal, n_net)
+n_net = nnet(layers, cost_func=negtive_log, monitor_cost_func=None)
+tri = trainer(db, opt, classifyVal, n_net)
 
 print 'compling the trainer'
 tri.compile()

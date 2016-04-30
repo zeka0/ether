@@ -1,14 +1,14 @@
 from ether.util.exception import *
-class net_trainer:
-    def __init__(self, dataBase, optimizer, validator, nnet):
-        self.nnet = nnet
+class trainer:
+    def __init__(self, dataBase, optimizer, validator, model):
+        self.model = model
         self.set_optimizer(optimizer)
         self.set_validator(validator)
         self.set_dataBase(dataBase)
 
     def compile(self):
-        self.optimizer.set_owner(self.nnet)
-        self.validator.set_owner(self.nnet)
+        self.optimizer.set_owner(self.model)
+        self.validator.set_owner(self.model)
 
     def set_dataBase(self, dataBase):
         self.dataBase=dataBase #Storage
@@ -25,8 +25,8 @@ class net_trainer:
     def get_validator(self):
         return self.validator
 
-    def get_nnet(self):
-        return self.nnet
+    def get_model(self):
+        return self.model
 
     def has_nextInstance(self, batchSize=1):
         return self.dataBase.has_nextInstance(batchSize)
@@ -37,7 +37,7 @@ class net_trainer:
         '''
         if self.dataBase.has_nextInstance(batchSize):
             return self.dataBase.read_instances(batchSize)
-        else: raise instanceException('nnet has no more instances')
+        else: raise instanceException('model has no more instances')
 
     def train(self, cycles):
         for i in xrange(cycles):

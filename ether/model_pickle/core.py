@@ -11,12 +11,12 @@ import os
 
 rootdir = r'E:\VirtualDesktop' #specifies the root directory which dump and load work
 
-nnet_fname = 'nnet'
+model_fname = 'model'
 optimizer_fname = 'optimizer'
 validator_fname = 'validator'
 
-def get_nnet_fpath():
-    return os.path.join(rootdir, nnet_fname)
+def get_model_fpath():
+    return os.path.join(rootdir, model_fname)
 
 def get_optimizer_fpath():
     return os.path.join(rootdir, optimizer_fname)

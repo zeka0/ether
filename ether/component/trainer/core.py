@@ -1,34 +1,15 @@
 from ether.component.layer import *
-from ether.component.model.controller import *
+from ether.component.model.controller import controller
+from theano import tensor as T
+import theano
 
 class optimizerBase(controller):
-    def __init__(self, func):
-        '''
-        func is a function object, which will acceptr an optimizer as its parameter and
-        return a tensor as the loss
-        '''
-        self.func = func
-
     def set_owner(self, nnet):
         '''
         To initialize the cost function
         '''
         controller.set_owner(self, nnet)
-        self.init_loss()
         self.init_train()
-
-    def init_loss(self):
-        '''
-        call init_loss to initialize the loss function
-        this method can't be called before the set_owner method
-        '''
-        self.loss = self.func(self)
-
-    def get_loss(self):
-        '''
-        return the tensor of the loss function
-        '''
-        return self.loss
 
     def get_updates(self):
         '''
@@ -47,18 +28,6 @@ class optimizerBase(controller):
 
     def get_additionalOutputs(self):
         return self.outputList
-
-    def get_gradients(self):
-        '''
-        Return a list of tuple
-        Tuple of shape (grad, parameter)
-        '''
-        if not hasattr(self, 'gradParams'):
-            self.gradParams = []
-            grads = T.grad(self.get_loss(), self.get_params())
-            for grad, para in zip(grads, self.get_params()):
-                self.gradParams.append((grad, para))
-        return self.gradParams
 
     def init_train(self):
         if hasattr(self, 'outputList'):
@@ -80,3 +49,35 @@ class optimizerBase(controller):
         except instanceException:
             #no more instances available
             print 'exception occured in instance availability'
+
+
+class validatorBase(controller):
+    def set_owner(self, model):
+        '''
+        To initialize the validation function
+        '''
+        controller.set_owner(self, model)
+        self.init_validation()
+        self.totalNum = 0
+        self.totalError = 0
+
+    def init_validation(self):
+        '''
+        initialize the validation function
+        '''
+        raise NotImplementedError()
+
+    def diver_compute(self, predict, tar):
+        '''
+        return the validation function
+        '''
+        raise NotImplementedError()
+
+    def validate_once(self, attr, tar):
+        self.totalNum = self.totalNum +1
+        predict = self.feed_forward(attr)
+        if not self.diver_compute(predict, tar):
+            self.totalError = self.totalError +1
+
+    def get_error_rate(self):
+        return (float)(self.totalError) / (float)(self.totalNum)

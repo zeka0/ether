@@ -1,39 +1,39 @@
 import pickle
 
 from core import *
-from ether.component.model.controller import nnetController
-from ether.component.trainer.trainer import net_trainer
+from ether.component.model.controller import controller
+from ether.component.trainer import trainer
 from ether.debug.tracker import tracker
 
 
-def load_nnet():
+def load_model():
     try:
-        with open( get_nnet_fpath(), 'rb' ) as fi:
+        with open( get_model_fpath(), 'rb' ) as fi:
             return pickle.load(fi)
     except Exception as ex:
-        print 'Exception occured in process of loading nnet'
+        print 'Exception occured in process of loading model'
         print ex
 
-def load_optimizer(nnet):
+def load_optimizer(model):
     try:
         with open( get_optimizer_fpath(), 'rb' ) as fi:
             opt = pickle.load(fi)
-        nnetController.set_owner(opt, nnet)
+        controller.set_owner(opt, model)
         if isinstance(opt, tracker):
-            nnetController.set_owner( opt.get_opt(), nnet )
+            controller.set_owner( opt.get_opt(), model )
         return opt
     except Exception as ex:
-        print 'Exception occured in process of loading nnet'
+        print 'Exception occured in process of loading model'
         print ex
 
-def load_validator(nnet):
+def load_validator(model):
     try:
         with open( get_validator_fpath(), 'rb' ) as fi:
             val = pickle.load(fi)
-        nnetController.set_owner(val, nnet)
+        controller.set_owner(val, model)
         return val
     except Exception as ex:
-        print 'Exception occured in process of loading nnet'
+        print 'Exception occured in process of loading model'
         print ex
 
 def load_trainer(dataBase):
@@ -41,8 +41,8 @@ def load_trainer(dataBase):
     As the optimizer and the validator may have computed before,
     we skip the calling of the 'compile' in trainer.
     '''
-    nnet = load_nnet()
-    opt = load_optimizer(nnet)
-    val = load_validator(nnet)
-    tri = net_trainer(dataBase, opt, val, nnet)
+    model = load_model()
+    opt = load_optimizer(model)
+    val = load_validator(model)
+    tri = trainer(dataBase, opt, val, model)
     return tri

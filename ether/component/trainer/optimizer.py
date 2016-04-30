@@ -8,33 +8,31 @@ To disable it, add 'on_unused_input = 'warn'' to the theano.function
 '''
 
 class SGDOptimizer(optimizerBase):
-    def __init__(self, func, learningRate=0.01):
-        optimizerBase.__init__(self, func)
+    def __init__(self, learningRate=0.01):
         self.learningRate = learningRate
 
     def get_learningRate(self):
         return self.learningRate
 
     def get_updates(self):
-        gradParams = self.get_gradients()
+        gradParams = self.get_gparams()
         updatesList = []
         for gpTuple in gradParams:
             grad = gpTuple[0]
             para = gpTuple[1]
             update = para - grad * self.learningRate
             updatesList.append( (para, update) ) #Stochastic batch
-        return updatesList
+        return updatesList + self.get_extra_updates()
 
-class adaGradOptimizer(optimizerBase):
-    def __init__(self, func, learningRate=0.01):
-        optimizerBase.__init__(self, func)
+class AdaGradOptimizer(optimizerBase):
+    def __init__(self, learningRate=0.01):
         self.learningRate = learningRate
 
     def get_learningRate(self):
         return self.learningRate
 
     def get_updates(self):
-        gradParaTuples = self.get_gradients()
+        gradParaTuples = self.get_gparams()
         accumulators = [theano.shared( np.zeros(p.get_value().shape) ) for g, p in gradParaTuples]
         updatesList = []
 
@@ -45,4 +43,4 @@ class adaGradOptimizer(optimizerBase):
             updatesList.append((acc, new_acc))
             new_param = para - self.learningRate * grad / T.sqrt(new_acc)
             updatesList.append((para, new_param))  # apply constraints
-        return updatesList
+        return updatesList + self.get_extra_updates()

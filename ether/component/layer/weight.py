@@ -17,16 +17,16 @@ class weightLayer(layer):
         self.init_bias()
 
     def init_weights(self):
-        self.weights = init_shared(shape=self.get_weightShape(), **self.weightKwargs)
+        self.W = init_shared(shape=self.get_weightShape(), **self.weightKwargs)
 
     def init_bias(self):
-        self.bias = init_shared(shape=(1,), **self.biasKwargs)
+        self.b = init_shared(shape=(1,), **self.biasKwargs)
 
     def get_weights(self):
-        return self.weights
+        return self.W
 
     def get_bias(self):
-        return self.bias
+        return self.b
 
     def get_inputShape(self):
         return self.inputShape
@@ -39,8 +39,8 @@ class weightLayer(layer):
 
     def get_params(self):
         paramList = []
-        paramList.append( self.get_weights() )
-        paramList.append( self.get_bias() )
+        paramList.append( self.W )
+        paramList.append( self.b )
         return paramList
 
     def connect(self, *layers):
@@ -49,5 +49,5 @@ class weightLayer(layer):
         assert len(self.inputShape) == 2
         self.set_inputTensor( layers[0].get_outputTensor() )
         self.init_weights()
-        outputTensor = self.get_inputTensor().dot( self.get_weights() ) + self.get_bias()
+        outputTensor = self.get_inputTensor().dot( self.W ) + self.b
         self.set_outputTensor(outputTensor)
