@@ -1,4 +1,4 @@
-from nnet import *
+from ether import *
 import pickle
 
 debug = True

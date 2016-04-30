@@ -9,6 +9,7 @@ The layer is the key components of the nnet. It builds the tensors required for 
 weightLayer( bias={'func':'scala', 'value':0, 'type':float}, weight={'func':'normal', 'low':-0.25, 'high':0.25})
 ```
 
+##TODO:May change Soon
 ###Initialiation of the parameters
 - __distr__
   - __normal__ distribution required parameters

@@ -1,4 +1,6 @@
 from ether.util import *
+from ether.component.initialize import init_shared
+from theano import tensor as T
 
 def merge_params(*params):
     paramList = []
@@ -51,21 +53,6 @@ class layer(object):
     def get_outputShape(self):
         raise NotImplementedError()
 
-    def connect(self, *layers):
-        '''
-        One layer may connect to multiple layers
-        '''
-        raise NotImplementedError()
-
-    def verify_shape(self):
-        '''
-        Verify the connections
-        Test if the shape is consistent
-        A good implementation should take it into consideration that (1, 1) and (1) represent the exactly same shape
-        For 1-dim shape, the form should be of (1, x) as we always treat the vector as a horizontal one
-        '''
-        raise NotImplementedError()
-
     def get_params(self):
         '''
         Subclasses should override this method to provide the parameters required to update
@@ -81,6 +68,12 @@ class layer(object):
         '''
         return self.get_params() is not None
 
+    def connect(self, *layers):
+        '''
+        One layer may connect to multiple layers
+        '''
+        raise NotImplementedError()
+
 class inputLayer(layer):
     '''
     A dummy layer for input
@@ -90,21 +83,45 @@ class inputLayer(layer):
         self.init_input(inputShape)
 
     def init_input(self, inputShape):
-        self.set_inputTensor( T.matrix() )
+        assert len(inputShape) >= 2 and len(inputShape) <=4
+        if len(inputShape) == 2:
+            self.set_inputTensor( T.matrix() )
+        elif len(inputShape) == 3:
+            self.set_inputTensor( T.tensor3() )
+        else:
+            self.set_inputTensor( T.tensor4() )
         self.set_outputTensor( self.get_inputTensor() )
         self.inputShape = inputShape
 
     def get_params(self):
         return None
 
+    def get_inputShape(self):
+        return self.inputShape
+
+    def get_outputShape(self):
+        return self.get_inputShape()
+
     def connect(self, *layers):
         raise connectException('inputLayer can\'t connect to other layers')
 
-    def verify_shape(self):
-        pass
+class biasLayer(layer):
+    def __init__(self, **biasKwargs):
+        layer.__init__(self)
+        self.biasKwargs = biasKwargs
+        self.bias = init_shared(shape=(1,), **self.biasKwargs)
+
+    def connect(self, *layers):
+        assert len(layers) == 1
+        self.set_inputTensor(layers[0].get_outputTensor())
+        self.set_outputTensor( self.get_inputTensor() + self.bias )
+        self.inputShape = layers[0].get_outputShape()
 
     def get_inputShape(self):
         return self.inputShape
 
     def get_outputShape(self):
         return self.get_inputShape()
+
+    def get_params(self):
+        return [self.biasi]

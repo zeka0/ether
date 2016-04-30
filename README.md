@@ -1,4 +1,5 @@
-##Author - Alphasis Zeka
+#Author - Alphasis Zeka
+##Whose English Name is Ether Wei
 __OMG I have finally built my first ever lenet!!!__
 
 ###Pre-note
@@ -17,7 +18,11 @@ Because though this version provides you with more flexibilities, it's considera
 And also, I have restrained the rules.
 
 ###Future Improvements
-Add the recurrent layer.
+- [ ] RNN
+- [ ] Restricted Boltzmann Machine
+- [ ] Auto-encoder
+- [ ] Sparse coding
+
 
 ##Notes From Author:
 - Neural network is really tough to learn.

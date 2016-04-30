@@ -1,5 +1,4 @@
-from ether.util import *
-from layer import *
+from ether.component.layer import *
 
 class nnet(object):
     '''
@@ -8,18 +7,9 @@ class nnet(object):
     Providing a better control over the layers
     It's considered as a great advantage because you may now pre-train layers with greater ease
     '''
-    def __init__(self, dataBase, optimizer, validator, layers):
+    def __init__(self, layers):
         self.set_layers( layers )
-        self.dataBase=dataBase #Storage
-        self.targetTensor=T.vector('T')
-        self.optimizer=optimizer
-        self.optimizer.set_owner(self)
-        self.validator=validator
-        self.validator.set_owner(self)
-
-    def set_validator(self, validator):
-        self.validator = validator
-        self.validator.set_owner(self)
+        self.targetTensor=T.vector()
 
     def set_layers(self, layers):
         '''
@@ -41,21 +31,9 @@ class nnet(object):
                 params.extend(self.layers[i].get_params()) #Add paras in specific-order
         return params
 
-    def get_nextInstance(self, batchSize=1):
-        '''
-        Return target vec
-        '''
-        if self.dataBase.has_nextInstance(batchSize):
-            return self.dataBase.get_nextInstance(batchSize)
-        else: raise instanceException('nnet has no more instances')
-
     def predict(self, attrVec):
-        return self.cal_output(attrVec)
-
-    def cal_output(self, attrVec):
         outputFunc = self.get_outputFunction()
-        predict = outputFunc(attrVec)
-        return predict #reshaping prediction
+        return outputFunc(attrVec)
 
     def get_inputTensor(self):
         return self.layers[0].get_inputTensor()
@@ -77,13 +55,6 @@ class nnet(object):
             li.append(layer.get_outputTensor())
         return li
 
-    def has_nextInstance(self, batchSize=1):
-        return self.dataBase.has_nextInstance(batchSize)
-
-    def set_state(self, isTrain):
-        self.dataBase.set_state(isTrain)
-
     def verify_shape(self):
         for layer in self.get_layers():
             layer.verify_shape()
-

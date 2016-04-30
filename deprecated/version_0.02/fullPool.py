@@ -1,6 +1,6 @@
 from collections import deque
 
-from nnet.util import *
+from ether.util import *
 class fullPool(object):
     '''
     Full sampling pool

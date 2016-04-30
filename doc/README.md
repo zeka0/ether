@@ -23,3 +23,8 @@ First of all, _layers[0] must represent the inputLayer_.
 Secondly, _layers[-1] must represent the outputLayer_.
 In the current version of nnet, the order in the array other than the postion 0 and -1 are not checked.
 But maintaing them in __front to back order__ is a good practice and is recommended.
+
+###Parameters of Layers and Components
+An advanced version of parameters are offered.
+Since the __T.grad__ has a extra parameter called _considered\_constant_, it's extremly important in the case of computing gradients.
+Moreover, some components may require to compute extra _updates_ in the _training process_.
