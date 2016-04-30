@@ -1,8 +1,10 @@
 import pickle
+
 from core import *
-from ether.util.controller import nnetController
+from ether.component.model.controller import nnetController
 from ether.component.trainer.trainer import net_trainer
 from ether.debug.tracker import tracker
+
 
 def load_nnet():
     try:

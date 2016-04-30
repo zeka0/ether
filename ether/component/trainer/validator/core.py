@@ -1,14 +1,12 @@
-from ether.util.controller import *
-
-class validator(nnetController):
-    def __init__(self):
-        nnetController.__init__(self)
-
+from ether.component.model.controller import controller
+from theano import tensor as T
+import theano
+class validator(controller):
     def set_owner(self, nnet):
         '''
         To initialize the validation function
         '''
-        nnetController.set_owner(self, nnet)
+        controller.set_owner(self, nnet)
         self.init_validation()
         self.totalNum = 0
         self.totalError = 0
@@ -27,7 +25,7 @@ class validator(nnetController):
 
     def validate_once(self, attr, tar):
         self.totalNum = self.totalNum +1
-        predict = self.predict(attr)
+        predict = self.feed_forward(attr)
         if not self.diver_compute(predict, tar):
             self.totalError = self.totalError +1
 

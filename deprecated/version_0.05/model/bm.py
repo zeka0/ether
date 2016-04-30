@@ -3,32 +3,43 @@ from theano import tensor as T
 import numpy as np
 from theano.tensor.shared_randomstreams import RandomStreams
 from core import model
-from ether.component.initialize import init_shared
 
 class RestrictedBM(model):
     def __init__(self,
-                 n_visible, n_hidden, k=1,
-                 theano_rng=None, persistent=None,
+                 n_visible, n_hidden,
+                 numpy_rng=None, theano_rng=None,
                  **kwargs):
         self.n_visible = n_visible
         self.n_hidden = n_hidden
-
+        if numpy_rng is None:
+            numpy_rng = np.random.RandomState(1234)
         if theano_rng is None:
-            theano_rng = RandomStreams(np.random.randint(2**30))
-        assert kwargs.has_key('weight')
-        assert kwargs.has_key('hbias')
-        assert kwargs.has_key('vbias')
+            theano_rng = RandomStreams(numpy_rng.randint(2**30))
 
-        self.W = init_shared( **kwargs['weight'] )
-        self.hbias = init_shared( **kwargs['hbias'] )
-        self.vbias = init_shared( **kwargs['vbias'] )
-        self.theano_rng = theano_rng
-        self.persistent = persistent
-        self.k = k
+        if kwargs.has_key('weight'):
+            self.W = kwargs['weight']
+        else:
+            self.W = theano.shared( np.asarray( numpy_rng.uniform(
+                low=-4 * np.sqrt( 6./ (n_hidden + n_visible) ),
+                high=4 * np.sqrt( 6./ (n_hidden + n_visible) ),
+                size=(n_visible, n_hidden)
+            ) ) )
+
+        if kwargs.has_key('hbias'):
+            self.hbias = kwargs['hbias']
+        else:
+            self.hbias = theano.shared( value=np.zeros(n_hidden, dtype=np.float), borrow=True )
+
+        if kwargs.has_key('vbias'):
+            self.vbias = kwargs['vbias']
+        else:
+            self.vbias = theano.shared( value=np.zeros( n_visible, dtype=np.float ), borrow=True )
+
         if kwargs.has_key('input'):
             self.input = kwargs['input']
         else:
             self.input = T.matrix('input')
+        self.theano_rng = theano_rng
 
     def get_params(self):
         return [self.W, self.vbias, self.hbias]
@@ -71,7 +82,7 @@ class RestrictedBM(model):
         hidden_term = T.sum(T.log(1 + T.exp(wx_b)), axis=1)
         return -vbias_term - hidden_term
 
-    def scan_nhv(self, chain_start):
+    def scan_nhv(self, chain_start, k=1):
         ([
              self.pre_sigmoid_nvs,
              self.nv_means,
@@ -82,31 +93,30 @@ class RestrictedBM(model):
          ], updates) = theano.scan(
             self.gibbs_hvh,
             outputs_info=[None, None, None, None, None, chain_start],
-            n_steps=self.k,
+            n_steps=k,
             name='gibbs_hvh'
         )
 
-    def get_cost(self):
-        if not hasattr(self, 'cost'):
-            self.updates = dict()
-            pre_sigmoid_ph, ph_mean, ph_sample = self.sample_h_given_v(self.input)
-            if self.persistent is None:
-                chain_start = ph_sample
-            else:
-                chain_start = self.persistent
-            self.scan_nhv(chain_start)
-            self.chain_end = self.nv_samples[-1]
-            self.cost = T.mean(self.free_energy(self.input)) - T.mean(self.free_energy(self.chain_end))
-        return self.cost
+    def get_cost(self, persistent=None, k=1):
+        pre_sigmoid_ph, ph_mean, ph_sample = self.sample_h_given_v(self.input)
+        if persistent is None:
+            chain_start = ph_sample
+        else:
+            chain_start = persistent
+        self.scan_nhv(chain_start, k)
+        chain_end = self.nv_samples[-1]
+        cost = T.mean(self.free_energy(self.input)) - T.mean(self.free_energy(chain_end))
+        self.updates = dict()
+        return cost
 
-    def get_monitoring_cost(self):
-        if not hasattr(self, 'monitor_cost'):
-            if self.persistent:
-                self.updates[self.persistent] = self.nh_samples[-1]
-                self.monitor_cost = self.get_pseudo_likelihood_cost()
-            else:
-                self.monitor_cost = self.get_reconstruction_cost(self.pre_sigmoid_nvs[-1])
-        return self.monitor_cost
+    def get_monitoring_cost(self, persistent=None, k=1):
+        if persistent:
+            self.updates[persistent] = self.nh_samples[-1]
+            cost = self.get_pseudo_likelihood_cost()
+        else:
+            cost = self.get_reconstruction_cost(self.pre_sigmoid_nvs[-1])
+        return cost
+
 
     def get_pseudo_likelihood_cost(self):
         bit_i_idx = theano.shared(value=0)
@@ -126,10 +136,11 @@ class RestrictedBM(model):
                 axis=1
             )
         )
+
         return cross_entropy
 
-    def get_gparams(self):
-        gparams = T.grad(self.cost, self.get_params(), consider_constant=[self.chain_end])
+    def get_grad_para_tuple(self, cost, chain_end):
+        gparams = T.grad(cost, self.get_params(), consider_constant=[chain_end])
         gpts = []
         for gparam, para in zip(gparams, self.get_params()):
             gpts += (gparam, para)
@@ -137,13 +148,3 @@ class RestrictedBM(model):
 
     def get_extra_updates(self):
         return self.updates
-
-    def compile(self):
-        self.get_cost()
-        self.get_monitoring_cost()
-
-    def get_outputTensor(self):
-        return self.nv_samples[-1]
-
-    def get_inputTensor(self):
-        return self.input

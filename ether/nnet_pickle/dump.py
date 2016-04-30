@@ -2,9 +2,11 @@
 In dumping, the dataBase is never dumped.
 '''
 import pickle
+
 from core import *
-from ether.util.controller import nnetController
+from ether.component.model.controller import nnetController
 from ether.debug.tracker.core import tracker
+
 
 def dump_nnet(nnet):
     try:

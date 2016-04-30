@@ -1,19 +1,20 @@
 from ether.component.layer import *
 from ether.component.model.controller import *
 
-class optimizerBase(controller):
+class optimizerBase(nnetController):
     def __init__(self, func):
         '''
         func is a function object, which will acceptr an optimizer as its parameter and
         return a tensor as the loss
         '''
         self.func = func
+        nnetController.__init__(self)
 
     def set_owner(self, nnet):
         '''
         To initialize the cost function
         '''
-        controller.set_owner(self, nnet)
+        nnetController.set_owner(self, nnet)
         self.init_loss()
         self.init_train()
 

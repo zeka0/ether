@@ -1,18 +1,15 @@
 from ether.component.layer import *
-from core import model
 
-class nnet(model):
+class nnet(object):
     '''
     Provide a general interface to components
     Unlike previously-designed nnet, this one makes it possible for outsiders to initialize the net for it
     Providing a better control over the layers
     It's considered as a great advantage because you may now pre-train layers with greater ease
     '''
-    def __init__(self, layers, cost_func, monitor_cost_func):
+    def __init__(self, layers):
         self.set_layers( layers )
         self.targetTensor=T.vector()
-        self.cost_func = cost_func
-        self.monitor_cost_func = monitor_cost_func
 
     def set_layers(self, layers):
         '''
@@ -34,6 +31,10 @@ class nnet(model):
                 params.extend(self.layers[i].get_params()) #Add paras in specific-order
         return params
 
+    def predict(self, attrVec):
+        outputFunc = self.get_outputFunction()
+        return outputFunc(attrVec)
+
     def get_inputTensor(self):
         return self.layers[0].get_inputTensor()
 
@@ -43,28 +44,13 @@ class nnet(model):
     def get_targetTensor(self):
         return self.targetTensor
 
+    def get_outputFunction(self):
+        if not hasattr(self, 'outputFunction'):
+            self.outputFunction=theano.function(inputs=[self.get_inputTensor()], outputs=self.get_outputTensor())
+        return self.outputFunction
+
     def get_layerOutputTensors(self):
         li = []
         for layer in self.layers:
             li.append(layer.get_outputTensor())
         return li
-
-    def get_cost(self):
-        return self.cost_func( self )
-
-    def get_monitoring_cost(self):
-        return self.monitor_cost_func( self )
-
-    def get_extra_updates(self):
-        return []
-
-    def get_gparams(self):
-        if not hasattr(self, 'gprams'):
-            self.gparams = []
-            grads = T.grad(self.get_cost(), self.get_params())
-            for grad, para in zip(grads, self.get_params()):
-                self.gparams += (grad, para)
-        return self.gparams
-
-    def compile(self):
-        pass

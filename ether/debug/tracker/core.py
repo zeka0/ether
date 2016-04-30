@@ -1,4 +1,4 @@
-from ether.util.controller import nnetController
+from ether.component.model.controller import nnetController
 
 class tracker(nnetController):
     def __init__(self, opt, stride=0):

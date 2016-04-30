@@ -3,7 +3,7 @@ import numpy as np
 import theano
 from theano import tensor as T
 
-from ether.util import controller
+from ether.component.model import controller
 
 '''
 The Layer is modeled after a graph
