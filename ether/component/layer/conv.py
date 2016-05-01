@@ -78,7 +78,7 @@ class maxPoolLayer(layer):
         self.poolShape = poolShape
 
     def get_params(self):
-        return None
+        return []
 
     def get_inputShape(self):
         return self.inputShape

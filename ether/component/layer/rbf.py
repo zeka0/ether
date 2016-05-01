@@ -56,4 +56,4 @@ class fixedRBFLayer(RBFLayer):
         pass
 
     def get_params(self):
-        return None
+        return []

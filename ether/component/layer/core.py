@@ -1,6 +1,7 @@
 from ether.util import *
-from ether.component.initialize import init_shared
+from ether.component.initialize import *
 from theano import tensor as T
+from ether.component.core import component
 
 def merge_params(*params):
     paramList = []
@@ -9,7 +10,7 @@ def merge_params(*params):
             paramList.append(param)
     return paramList
 
-class layer(object):
+class layer(component):
     '''
     It's required that the inputShape & outputShape be ndarray
     base class for all kinds of layers
@@ -47,26 +48,11 @@ class layer(object):
         else:
             raise connectException('connect before get outputTensor')
 
-    def get_inputShape(self):
-        raise NotImplementedError()
-
-    def get_outputShape(self):
-        raise NotImplementedError()
-
-    def get_params(self):
-        '''
-        Subclasses should override this method to provide the parameters required to update
-        If the parameters are more than one, return a list
-        If there are no parameters to update (i.e, no trainable parameters, return None instead)
-        It's required to return a iterable object (eg, )
-        '''
-        return None
-
     def has_trainableParams(self):
         '''
         Returns whether the layer has trainable parameters or not
         '''
-        return self.get_params() is not None
+        return len(self.get_params()) != 0
 
     def connect(self, *layers):
         '''
@@ -83,18 +69,12 @@ class inputLayer(layer):
         self.init_input(inputShape)
 
     def init_input(self, inputShape):
-        assert len(inputShape) >= 2 and len(inputShape) <=4
-        if len(inputShape) == 2:
-            self.set_inputTensor( T.matrix() )
-        elif len(inputShape) == 3:
-            self.set_inputTensor( T.tensor3() )
-        else:
-            self.set_inputTensor( T.tensor4() )
+        self.set_inputTensor( init_input(inputShape) )
         self.set_outputTensor( self.get_inputTensor() )
         self.inputShape = inputShape
 
     def get_params(self):
-        return None
+        return []
 
     def get_inputShape(self):
         return self.inputShape

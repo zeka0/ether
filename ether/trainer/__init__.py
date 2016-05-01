@@ -1,7 +1,4 @@
-from trainer import *
-
 from optimizer import *
-
+from trainer import *
 from validator import *
 
-from net_cost import *

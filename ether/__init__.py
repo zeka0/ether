@@ -9,3 +9,5 @@ from util import *
 from debug import *
 
 from model_pickle import *
+
+from trainer import *

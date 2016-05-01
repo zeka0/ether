@@ -28,7 +28,7 @@ class merge1DLayer(layer):
         return self.inputShape
 
     def get_params(self):
-        return None
+        return []
 
     def connect(self, *layers):
         '''
@@ -63,7 +63,7 @@ class flattenLayer(layer):
         self.set_outputTensor(outputTensor)
 
     def get_params(self):
-        return None
+        return []
 
     def get_inputShape(self):
         return self.inputShape

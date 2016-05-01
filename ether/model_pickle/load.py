@@ -2,8 +2,8 @@ import pickle
 
 from core import *
 from ether.component.model.controller import controller
-from ether.component.trainer import trainer
 from ether.debug.tracker import tracker
+from ether.trainer import trainer
 
 
 def load_model():

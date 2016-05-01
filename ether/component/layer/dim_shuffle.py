@@ -21,4 +21,4 @@ class dimShuffelLayer(layer):
         self.outputShape = dimShuffle_shape(self.inputShape, *self.pattern)
 
     def get_params(self):
-        return None
+        return []

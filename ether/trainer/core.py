@@ -37,6 +37,7 @@ class optimizerBase(controller):
                 updates=self.get_updates()
             )
         else:
+            #TODO bug, inconsistent interface
             self.train=theano.function(
                 inputs=[self.get_inputTensor(), self.get_targetTensor()],
                 outputs=[],

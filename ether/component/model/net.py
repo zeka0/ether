@@ -68,3 +68,9 @@ class nnet(model):
 
     def compile(self):
         pass
+
+    def get_inputShape(self):
+        return self.layers[0].get_inputShape()
+
+    def get_outputShape(self):
+        return self.layers[-1].get_outputShape()

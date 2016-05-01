@@ -20,7 +20,7 @@ class weightLayer(layer):
         self.W = init_shared(shape=self.get_weightShape(), **self.weightKwargs)
 
     def init_bias(self):
-        self.b = init_shared(shape=(1,), **self.biasKwargs)
+        self.b = init_shared(shape=(self.numOfOutput,), **self.biasKwargs)
 
     def get_weights(self):
         return self.W
@@ -38,10 +38,7 @@ class weightLayer(layer):
         return ( self.inputShape[0], self.numOfOutput )
 
     def get_params(self):
-        paramList = []
-        paramList.append( self.W )
-        paramList.append( self.b )
-        return paramList
+        return [self.W, self.b]
 
     def connect(self, *layers):
         assert len(layers) == 1

@@ -1,11 +1,22 @@
 import theano
 import numpy as np
+from theano import tensor as T
 
 def transform_shape(shape):
     if isinstance(shape, tuple):
         return shape
     elif isinstance(shape, int):
         return (1, shape)
+
+def init_input(inputShape):
+    assert len(inputShape) >= 2 and len(inputShape) <=4
+    if len(inputShape) == 2:
+        inputTensor = T.matrix()
+    elif len(inputShape) == 3:
+        inputTensor = T.tensor3()
+    else:
+        inputTensor = T.tensor4()
+    return inputTensor
 
 def init_shared(**kwargs):
     '''

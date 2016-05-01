@@ -1,6 +1,8 @@
-from ether.component.trainer.core import validatorBase
-from theano import tensor as T
 import theano
+from theano import tensor as T
+
+from ether.trainer import validatorBase
+
 
 def argmin(x):
     return T.argmin(x)

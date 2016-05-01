@@ -7,12 +7,16 @@ It's because I have to accomondate new models, i.e, RBM into the scope of the li
 - __Introduction of packages__ are in:
   1. `\instance.md`
   2. `\layer.md`
-  3. `lenet5.md`
+  3. `model.md`
   4. `\trainier.md`
   5. `\pickle.md`
 - __Notes for using python__ is in `\lang.md`
 
 ##Pre-warning
+Some part of the library can be very tricky.
+So pay close attention when you want to learn from it.
+I take all the blame for not making the library easy to use.
+And with that goal in my mind, I am dedicated to make it better.
 
 ###Shape mechanism
 The present version of the nnet uses a rather strongly checked shape mechanisms.

@@ -19,9 +19,6 @@ class controller:
     def get_outputTensor(self):
         return self.model.get_outputTensor()
 
-    def get_layerOutputTensors(self):
-        return self.model.get_layerOutputTensors()
-
     def get_params(self):
         return self.model.get_params()
 

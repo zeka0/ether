@@ -1,7 +1,4 @@
-#Author - Alphasis Zeka
-##Ether Wei presents
-The new name for this library will be __ether__.
-Pardon my preference. Just take after linux.
+#Author - Ether Wei
 
 ###Pre-note
 - Docs can be found in `\doc`
@@ -41,3 +38,6 @@ It's because sometimes when you find a bug, having some knowledge of them can he
 - The __mini-batch__ isn't supported.
 However, you may see some implementations of the layers support the mini-batch, it's not supported in the optimizer.
 Thought this could mean that the computation could be slower, the mini-batch can be simulated anyway.
+
+##Acknowleges
+I have learned a lot from __deeplearning.net__, part of the library is inspired by their work.

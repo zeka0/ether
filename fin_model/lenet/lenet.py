@@ -2,6 +2,7 @@ from ether import *
 
 debug = True
 filePath = r'E:\VirtualDesktop\nnet\minist\normed_double_mnist.pkl.gz'
+model_fname = 'lenet'
 
 mnist_reader = mnistDataReader(filePath, 10)
 db = fullPool(mnist_reader.read_all(), True)
@@ -11,7 +12,7 @@ classifyVal = classifyValidator(argmax)
 opt = SGDOptimizer()
 
 biasInitDic = {'distr':'constant', 'value':0.}
-weightBiasInitDic = {'distr':'scala', 'value':0, 'type':float}
+weightBiasInitDic = {'distr':'constant', 'value':0}
 
 input_layer = inputLayer( (1, 1, 28, 28) )
 C1 = conv2DLayer(4, (5, 5), border_mode='valid', filter={'distr':'uniform', 'low':-np.sqrt( 6./125 ), 'high':np.sqrt( 6./125 )}, bias=biasInitDic)

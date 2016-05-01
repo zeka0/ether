@@ -12,7 +12,7 @@ def readMnist(filePath):
         return x
 
 import numpy as np
-path = r'E:\VirtualDesktop\nnet\minist\normed_double_mnist.pkl.gz'
+path = r'E:\VirtualDesktop\nnet\minist\flatten_double_mnist.pkl.gz'
 
 if __name__ == '__main__':
     xData = readMnist( path )

@@ -3,7 +3,7 @@ from theano import tensor as T
 import numpy as np
 from theano.tensor.shared_randomstreams import RandomStreams
 from core import model
-from ether.component.initialize import init_shared
+from ether.component.initialize import init_shared, init_input
 
 class RestrictedBM(model):
     def __init__(self,
@@ -18,17 +18,17 @@ class RestrictedBM(model):
         assert kwargs.has_key('weight')
         assert kwargs.has_key('hbias')
         assert kwargs.has_key('vbias')
+        assert not kwargs['weight'].has_key('shape')
+        assert not kwargs['vbias'].has_key('shape')
+        assert not kwargs['hbias'].has_key('shape')
 
-        self.W = init_shared( **kwargs['weight'] )
-        self.hbias = init_shared( **kwargs['hbias'] )
-        self.vbias = init_shared( **kwargs['vbias'] )
+        self.W = init_shared(shape=(n_visible, n_hidden), **kwargs['weight'] )
+        self.hbias = init_shared(shape=(n_hidden,), **kwargs['hbias'] )
+        self.vbias = init_shared(shape=(n_visible,), **kwargs['vbias'] )
         self.theano_rng = theano_rng
         self.persistent = persistent
         self.k = k
-        if kwargs.has_key('input'):
-            self.input = kwargs['input']
-        else:
-            self.input = T.matrix('input')
+        self.input = T.matrix()
 
     def get_params(self):
         return [self.W, self.vbias, self.hbias]
@@ -143,7 +143,16 @@ class RestrictedBM(model):
         self.get_monitoring_cost()
 
     def get_outputTensor(self):
+        #TODO flawed, the k arguements here doen's necessarily means the final desired output of rbm
+        if not hasattr(self, 'nv_samples'):
+            self.compile()
         return self.nv_samples[-1]
 
     def get_inputTensor(self):
         return self.input
+
+    def get_inputShape(self):
+        return (self.n_visible, 1)
+
+    def get_outputShape(self):
+        return (self.n_visible, 1)

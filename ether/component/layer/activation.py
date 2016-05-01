@@ -7,7 +7,7 @@ class activationLayer(layer):
     Any subclass that contains a activation function should sub-class this class
     '''
     def get_params(self):
-        return None
+        return []
 
 class sigmoidLayer(activationLayer):
     def __init__(self):
