@@ -1,5 +1,7 @@
 #Author - Alphasis Zeka
 ##Ether Wei presents
+The new name for this library will be __ether__.
+Pardon my preference. Just take after linux.
 
 ###Pre-note
 - Docs can be found in `\doc`
