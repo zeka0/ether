@@ -1,6 +1,7 @@
 import theano
 from theano import tensor as T
 import numpy as np
+from core import supervisedModel, unsupervisedModel
 
 class controller:
     def set_owner(self, model):
@@ -47,3 +48,8 @@ class controller:
         if not hasattr(self, 'outputFunction'):
             self.outputFunction=theano.function(inputs=[self.get_inputTensor()], outputs=self.get_outputTensor())
         return self.outputFunction
+
+    def is_supervise(self):
+        if isinstance(self.model, supervisedModel):
+            return True
+        else: return False

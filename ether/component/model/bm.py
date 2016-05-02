@@ -2,10 +2,10 @@ import theano
 from theano import tensor as T
 import numpy as np
 from theano.tensor.shared_randomstreams import RandomStreams
-from core import model
+from core import unsupervisedModel
 from ether.component.initialize import init_shared, init_input
 
-class RestrictedBM(model):
+class RestrictedBM(unsupervisedModel):
     def __init__(self,
                  n_visible, n_hidden, k=1,
                  theano_rng=None, persistent=None,
@@ -40,7 +40,7 @@ class RestrictedBM(model):
     def sample_h_given_v(self, v0_sample):
         pre_sigmoid_h1, h1_mean = self.prop_up(v0_sample)
         h1_sample = self.theano_rng.binomial(size=h1_mean.shape,
-                                             n=1, p=h1_mean)
+                                             n=1, p=h1_mean, dtype=theano.config.floatX)
         return [pre_sigmoid_h1, h1_mean, h1_sample]
 
     def prop_down(self, hid):
@@ -50,7 +50,7 @@ class RestrictedBM(model):
     def sample_v_given_h(self, h0_sample):
         pre_sigmoid_v1, v1_mean = self.prop_down(h0_sample)
         v1_sample = self.theano_rng.binomial(size=v1_mean.shape,
-                                             n=1, p=v1_mean)
+                                             n=1, p=v1_mean, dtype=theano.config.floatX)
         return [pre_sigmoid_v1, v1_mean, v1_sample]
 
     def gibbs_hvh(self, h0_sample):
@@ -79,16 +79,17 @@ class RestrictedBM(model):
              self.pre_sigmoid_nhs,
              self.nh_means,
              self.nh_samples
-         ], updates) = theano.scan(
+         ], self.updates) = theano.scan(
             self.gibbs_hvh,
             outputs_info=[None, None, None, None, None, chain_start],
             n_steps=self.k,
             name='gibbs_hvh'
         )
+        if self.persistent:
+            self.updates[self.persistent] = self.nh_samples[-1]
 
     def get_cost(self):
         if not hasattr(self, 'cost'):
-            self.updates = dict()
             pre_sigmoid_ph, ph_mean, ph_sample = self.sample_h_given_v(self.input)
             if self.persistent is None:
                 chain_start = ph_sample
@@ -102,7 +103,6 @@ class RestrictedBM(model):
     def get_monitoring_cost(self):
         if not hasattr(self, 'monitor_cost'):
             if self.persistent:
-                self.updates[self.persistent] = self.nh_samples[-1]
                 self.monitor_cost = self.get_pseudo_likelihood_cost()
             else:
                 self.monitor_cost = self.get_reconstruction_cost(self.pre_sigmoid_nvs[-1])
@@ -110,7 +110,7 @@ class RestrictedBM(model):
 
     def get_pseudo_likelihood_cost(self):
         bit_i_idx = theano.shared(value=0)
-        xi = T,round(self.input)
+        xi = T.round(self.input)
         fe_xi = self.free_energy(xi)
         xi_flip = T.set_subtensor(xi[:, bit_i_idx], 1 - xi[:, bit_i_idx])
         fe_xi_flip = self.free_energy(xi_flip)
@@ -129,10 +129,11 @@ class RestrictedBM(model):
         return cross_entropy
 
     def get_gparams(self):
-        gparams = T.grad(self.cost, self.get_params(), consider_constant=[self.chain_end])
+        cost = self.get_cost()
+        gparams = T.grad(cost, self.get_params(), consider_constant=[self.chain_end])
         gpts = []
         for gparam, para in zip(gparams, self.get_params()):
-            gpts += (gparam, para)
+            gpts.append((gparam, para))
         return gpts
 
     def get_extra_updates(self):

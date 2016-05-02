@@ -13,7 +13,8 @@ class optimizerBase(controller):
 
     def get_updates(self):
         '''
-        Return a list of tuple of (para, update)
+        :return updates for trainable parameters
+        :rtype dict
         '''
         raise NotImplementedError()
 
@@ -30,23 +31,27 @@ class optimizerBase(controller):
         return self.outputList
 
     def init_train(self):
+        if self.is_supervise():
+            inputs = [self.get_inputTensor(), self.get_targetTensor()]
+        else: inputs = [self.get_inputTensor()]
         if hasattr(self, 'outputList'):
             self.train=theano.function(
-                inputs=[self.get_inputTensor(), self.get_targetTensor()],
+                inputs=inputs,
                 outputs=self.get_additionalOutputs(),
                 updates=self.get_updates()
             )
         else:
-            #TODO bug, inconsistent interface
             self.train=theano.function(
-                inputs=[self.get_inputTensor(), self.get_targetTensor()],
+                inputs=inputs,
                 outputs=[],
                 updates=self.get_updates()
             )
 
     def train_once(self, attr, tar):
         try:
-            return self.train(attr, tar) #Discard output
+            if self.is_supervise():
+                return self.train(attr, tar) #Discard output
+            else: return self.train(attr)
         except instanceException:
             #no more instances available
             print 'exception occured in instance availability'

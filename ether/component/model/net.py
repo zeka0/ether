@@ -1,7 +1,7 @@
 from ether.component.layer import *
-from core import model
+from core import supervisedModel
 
-class nnet(model):
+class nnet(supervisedModel):
     '''
     Provide a general interface to components
     Unlike previously-designed nnet, this one makes it possible for outsiders to initialize the net for it

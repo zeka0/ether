@@ -2,4 +2,4 @@ from bm import *
 
 from net import *
 
-from net_cost import *
+from supv_cost import *

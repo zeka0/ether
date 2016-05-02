@@ -1,17 +1,8 @@
 from ether.component.core import component
 class model(component):
-    #TODO add get_inputs(self) to return the required inputs to the model
-    #TODO still the targetTensor is a problem
-    #TODO different models required different inputs
     def get_cost(self):
         '''
         :return the cost to minimize
-        :rtype theano.tensor
-        '''
-        raise NotImplementedError()
-
-    def get_monitoring_cost(self):
-        '''
         :rtype theano.tensor
         '''
         raise NotImplementedError()
@@ -20,7 +11,7 @@ class model(component):
         '''
         In some models, they need to update their inner state.
         This is done by using this method.
-        :rtype list
+        :rtype dict
         '''
         raise NotImplementedError()
 
@@ -37,3 +28,21 @@ class model(component):
         In short, this function is used to compute the necessary parts of the cost, grads or updates.
         '''
         pass
+
+class unsupervisedModel(model):
+    def get_monitoring_cost(self):
+        '''
+        :rtype theano.tensor
+        '''
+        raise NotImplementedError()
+
+    #TODO
+    #seperate monitor and cost updates
+
+class supervisedModel(model):
+    def get_targetTensor(self):
+        '''
+        :return the symbolic tensor which represents the target of the model
+        :rtype theano.tensor
+        '''
+        raise NotImplementedError()

@@ -7,8 +7,10 @@ class trainer:
         self.set_dataBase(dataBase)
 
     def compile(self):
-        self.optimizer.set_owner(self.model)
-        self.validator.set_owner(self.model)
+        if self.optimizer is not None:
+            self.optimizer.set_owner(self.model)
+        if self.validator is not None:
+            self.validator.set_owner(self.model)
 
     def set_dataBase(self, dataBase):
         self.dataBase=dataBase #Storage

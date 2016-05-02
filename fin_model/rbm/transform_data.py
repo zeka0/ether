@@ -10,9 +10,9 @@ xData = readMnist( source )
 yData00 = []
 yData10 = []
 for i in xrange(len(xData[0][0])):
-    yData00.append(xData[0][0][i].flat[:])
+    yData00.append( np.array(xData[0][0][i].flat[:], ndmin=2) )
 for i in xrange(len(xData[1][0])):
-    yData10.append(xData[1][0][i].flat[:])
+    yData10.append( np.array(xData[1][0][i].flat[:], ndmin=2))
 
 yData = ((np.array(yData00), xData[0][1]), (np.array(yData10), xData[1][1]))
 

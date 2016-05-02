@@ -16,13 +16,15 @@ class SGDOptimizer(optimizerBase):
 
     def get_updates(self):
         gradParams = self.get_gparams()
-        updatesList = []
+        #TODO modify it to be orderedDict
+        updateDict = dict()
         for gpTuple in gradParams:
             grad = gpTuple[0]
             para = gpTuple[1]
             update = para - grad * self.learningRate
-            updatesList.append( (para, update) ) #Stochastic batch
-        return updatesList + self.get_extra_updates()
+            updateDict[para] = update #Stochastic batch
+        updateDict.update( self.get_extra_updates() )
+        return updateDict
 
 class AdaGradOptimizer(optimizerBase):
     def __init__(self, learningRate=0.01):
@@ -34,13 +36,14 @@ class AdaGradOptimizer(optimizerBase):
     def get_updates(self):
         gradParaTuples = self.get_gparams()
         accumulators = [theano.shared( np.zeros(p.get_value().shape) ) for g, p in gradParaTuples]
-        updatesList = []
+        updateDict = dict()
 
         for gpTuple, acc in zip(gradParaTuples, accumulators):
             grad = gpTuple[0]
             para = gpTuple[1]
             new_acc = acc + grad ** 2  # update accumulator
-            updatesList.append((acc, new_acc))
+            updateDict[acc] = new_acc
             new_param = para - self.learningRate * grad / T.sqrt(new_acc)
-            updatesList.append((para, new_param))  # apply constraints
-        return updatesList + self.get_extra_updates()
+            updateDict[para] = new_param
+        updateDict.update( self.get_extra_updates() )
+        return updateDict
