@@ -1,4 +1,4 @@
-from nnet import *
+from ether import *
 
 print 'init scanner'
 scanner = cvsScanner(r'/Users/mac/Desktop/REF_PLANT_DICTIONARY.csv', headLength=0, hasTitle=True)

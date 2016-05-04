@@ -1,5 +1,5 @@
 from core import *
-from nnet.util import *
+from ether.util import *
 
 class activationLayer(layer):
     '''

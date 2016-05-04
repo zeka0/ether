@@ -1,5 +1,5 @@
 from core import *
-from nnet.util.shape import *
+from ether.util.shape import *
 
 
 class weightLayer(layer):

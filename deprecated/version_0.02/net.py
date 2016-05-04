@@ -1,4 +1,4 @@
-from nnet.util import *
+from ether.util import *
 from layer import *
 
 class nnet(object):

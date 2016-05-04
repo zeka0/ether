@@ -1,5 +1,4 @@
-##Author - Alphasis Zeka
-__OMG I have finally built my first ever lenet!!!__
+#Author - Ether Wei
 
 ###Pre-note
 - Docs can be found in `\doc`
@@ -17,7 +16,12 @@ Because though this version provides you with more flexibilities, it's considera
 And also, I have restrained the rules.
 
 ###Future Improvements
-Add the recurrent layer.
+- [ ] RNN
+- [x] Restricted Boltzmann Machine
+- [ ] Auto-encoder
+- [ ] Sparse coding
+- [ ] Combination of models.
+
 
 ##Notes From Author:
 - Neural network is really tough to learn.
@@ -29,16 +33,12 @@ Add the recurrent layer.
 - It's strongly recommended to read the `doc` before using this project.
 - If you have never touched __numpy__ or __theano__ before, I suggest you to try them out yourself a little bit.
 It's because sometimes when you find a bug, having some knowledge of them can help great lot.
-- __Global variables in python are tricky to use.__ You should avoid them as early as possible.
-However, just like their counterparts in cpp, you can __provide scope for the global variables to operate.__
-This can be done by importing only the modula instead of all the contents of the modula and use the syntax:
-```python
-import core
-core.root_dir = 'C:\'
-```
 
 ##Rules
 - The input to the nnet should contain a dimension represent the _batch size_.
 - The __mini-batch__ isn't supported.
 However, you may see some implementations of the layers support the mini-batch, it's not supported in the optimizer.
 Thought this could mean that the computation could be slower, the mini-batch can be simulated anyway.
+
+##Acknowleges
+I have learned a lot from __deeplearning.net__, part of the library is inspired by their work.

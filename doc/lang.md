@@ -14,3 +14,14 @@ def __init__(self, **kwargs):
     if hasattr(self, 'attrName'):
         pass
 ```
+
+- __Global variables in python are tricky to use.__ You should avoid them as early as possible.
+However, just like their counterparts in cpp, you can __provide scope for the global variables to operate.__
+This can be done by importing only the modula instead of all the contents of the modula and use the syntax:
+```python
+import core
+core.root_dir = 'C:\'
+```
+
+- __Theano special requirement__ for the dictionary passed to __T.grad__ as _updates_ should be an __OrderedDict__.
+Using orignal dictionary, i.e. dict, will have un-determined results.

@@ -1,4 +1,4 @@
-from nnet.util.exception import *
+from ether.util.exception import *
 class mixValueInterpreter(object):
     '''
     Mix interpreting the regression and classification

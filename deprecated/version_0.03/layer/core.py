@@ -1,4 +1,4 @@
-from nnet.util import *
+from ether.util import *
 
 def merge_params(*params):
     paramList = []

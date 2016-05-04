@@ -1,4 +1,4 @@
-from nnet.instance.pool import *
+from ether.instance.pool import *
 
 class dataBase:
     '''
