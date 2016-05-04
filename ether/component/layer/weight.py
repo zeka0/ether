@@ -1,6 +1,6 @@
 from core import *
 from ether.util.shape import *
-from ether.component.initialize import init_shared
+from ether.component.init import init_shared
 
 class weightLayer(layer):
     '''

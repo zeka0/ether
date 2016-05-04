@@ -17,9 +17,10 @@ And also, I have restrained the rules.
 
 ###Future Improvements
 - [ ] RNN
-- [ ] Restricted Boltzmann Machine
+- [x] Restricted Boltzmann Machine
 - [ ] Auto-encoder
 - [ ] Sparse coding
+- [ ] Combination of models.
 
 
 ##Notes From Author:

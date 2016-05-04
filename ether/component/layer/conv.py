@@ -1,5 +1,5 @@
 import numpy as np
-from ether.component.initialize import init_shared
+from ether.component.init import init_shared
 from ether.component.layer.core import *
 from ether.util.shape import *
 from theano.tensor.signal.downsample import max_pool_2d

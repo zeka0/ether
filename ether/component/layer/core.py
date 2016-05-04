@@ -1,5 +1,5 @@
 from ether.util import *
-from ether.component.initialize import *
+from ether.component.init import *
 from theano import tensor as T
 from ether.component.core import component
 

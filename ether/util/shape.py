@@ -45,8 +45,3 @@ def dimShuffle_shape(oriShape, *pattern):
         else:
             outShape[i] = oriShape[ pattern[i] ]
     return tuple( outShape )
-
-def dot_shape(lShape, rShape):
-    #TODO
-    pass
-

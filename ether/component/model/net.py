@@ -66,11 +66,15 @@ class nnet(supervisedModel):
                 self.gparams.append((grad, para))
         return self.gparams
 
-    def compile(self):
-        pass
-
     def get_inputShape(self):
         return self.layers[0].get_inputShape()
 
     def get_outputShape(self):
         return self.layers[-1].get_outputShape()
+
+    def feed_forward(self, input):
+        if not hasattr(self, 'predict_fn'):
+            self.predict_fn = theano.function(
+                inputs=[self.get_inputTensor()], outputs=self.get_outputTensor()
+            )
+        return self.predict_fn(input)

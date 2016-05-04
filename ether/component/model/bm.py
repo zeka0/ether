@@ -3,11 +3,11 @@ from theano import tensor as T
 import numpy as np
 from theano.tensor.shared_randomstreams import RandomStreams
 from core import unsupervisedModel
-from ether.component.initialize import init_shared, init_input
+from ether.component.init import init_shared, init_input
 
 class RestrictedBM(unsupervisedModel):
     def __init__(self,
-                 n_visible, n_hidden, k=1,
+                 n_visible, n_hidden, train_k=1, sample_k=1000,
                  theano_rng=None, persistent=None,
                  **kwargs):
         self.n_visible = n_visible
@@ -27,7 +27,8 @@ class RestrictedBM(unsupervisedModel):
         self.vbias = init_shared(shape=(n_visible,), **kwargs['vbias'] )
         self.theano_rng = theano_rng
         self.persistent = persistent
-        self.k = k
+        self.train_k = train_k
+        self.sample_k = sample_k
         self.input = T.matrix()
 
     def get_params(self):
@@ -82,7 +83,7 @@ class RestrictedBM(unsupervisedModel):
          ], self.updates) = theano.scan(
             self.gibbs_hvh,
             outputs_info=[None, None, None, None, None, chain_start],
-            n_steps=self.k,
+            n_steps=self.train_k,
             name='gibbs_hvh'
         )
         if self.persistent:
@@ -139,15 +140,8 @@ class RestrictedBM(unsupervisedModel):
     def get_extra_updates(self):
         return self.updates
 
-    def compile(self):
-        self.get_cost()
-        self.get_monitoring_cost()
-
     def get_outputTensor(self):
-        #TODO flawed, the k arguements here doen's necessarily means the final desired output of rbm
-        if not hasattr(self, 'nv_samples'):
-            self.compile()
-        return self.nv_samples[-1]
+        raise NotImplementedError('No specific output can be caculated')
 
     def get_inputTensor(self):
         return self.input
@@ -157,3 +151,41 @@ class RestrictedBM(unsupervisedModel):
 
     def get_outputShape(self):
         return (self.n_visible, 1)
+
+    def reset_sample_k(self, sample_k):
+        self.sample_k = sample_k
+
+    def feed_forward(self, input):
+        if not hasattr(self, 'sample_fn'):
+            self.compile_sample_fn()
+        self.persistent_vis_chain.set_value(input)
+        vis_mf, vis_sample = self.sample_fn()
+        return vis_mf
+
+    def compile_sample_fn(self):
+        self.persistent_vis_chain = theano.shared( np.zeros(self.get_inputShape()) )
+        (
+            [
+                presig_hids,
+                hid_mfs,
+                hid_samples,
+                presig_vis,
+                vis_mfs,
+                vis_samples
+            ],
+            updates
+        ) = theano.scan(
+            self.gibbs_vhv,
+            outputs_info=[None, None, None, None, None, self.persistent_vis_chain],
+            n_steps=self.sample_k,
+            name="gibbs_vhv"
+        )
+        updates.update({self.persistent_vis_chain: vis_samples[-1]})
+        self.sample_fn = theano.function(
+            [],
+            [
+                vis_mfs[-1],
+                vis_samples[-1]
+            ],
+            updates=updates
+        )

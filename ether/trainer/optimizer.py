@@ -1,6 +1,5 @@
 from core import *
-from ether.component.initialize import init_shared
-
+from collections import OrderedDict
 '''
 When using this module, one thing to bear in mind is that you should check if loss function uses the targetTensor
 If not, this will raise the theano.compile.funcion_module.UnusedInputError
@@ -16,8 +15,7 @@ class SGDOptimizer(optimizerBase):
 
     def get_updates(self):
         gradParams = self.get_gparams()
-        #TODO modify it to be orderedDict
-        updateDict = dict()
+        updateDict = OrderedDict()
         for gpTuple in gradParams:
             grad = gpTuple[0]
             para = gpTuple[1]
@@ -36,7 +34,7 @@ class AdaGradOptimizer(optimizerBase):
     def get_updates(self):
         gradParaTuples = self.get_gparams()
         accumulators = [theano.shared( np.zeros(p.get_value().shape) ) for g, p in gradParaTuples]
-        updateDict = dict()
+        updateDict = OrderedDict()
 
         for gpTuple, acc in zip(gradParaTuples, accumulators):
             grad = gpTuple[0]

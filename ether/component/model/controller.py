@@ -32,9 +32,6 @@ class controller:
         '''
         return self.model.get_targetTensor()
 
-    def feed_forward(self, input):
-        return self.get_outputFunction()(input)
-
     def get_cost(self):
         return self.model.get_cost()
 
@@ -43,11 +40,6 @@ class controller:
 
     def get_extra_updates(self):
         return self.model.get_extra_updates()
-
-    def get_outputFunction(self):
-        if not hasattr(self, 'outputFunction'):
-            self.outputFunction=theano.function(inputs=[self.get_inputTensor()], outputs=self.get_outputTensor())
-        return self.outputFunction
 
     def is_supervise(self):
         if isinstance(self.model, supervisedModel):

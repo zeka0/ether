@@ -22,3 +22,6 @@ This can be done by importing only the modula instead of all the contents of the
 import core
 core.root_dir = 'C:\'
 ```
+
+- __Theano special requirement__ for the dictionary passed to __T.grad__ as _updates_ should be an __OrderedDict__.
+Using orignal dictionary, i.e. dict, will have un-determined results.

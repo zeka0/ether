@@ -1,5 +1,5 @@
 from core import *
-from ether.component.initialize import init_shared
+from ether.component.init import init_shared
 
 '''
 When using this module, one thing to bear in mind is that you should check if loss function uses the targetTensor

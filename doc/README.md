@@ -1,15 +1,15 @@
 ##Version-Notes
-The current version is radically different from previous version.
-First of all, I must say sorry to the interface-changes all around the library.
-It's because I have to accomondate new models, i.e, RBM into the scope of the library.
+The new member to __ether__ is the __restricted botlzmann machine__, with the help from __deeplearning.net__.
+I'm currently exploring _deep botlzmann machine_.
 
 ##Introduction
 - __Introduction of packages__ are in:
   1. `\instance.md`
-  2. `\layer.md`
-  3. `model.md`
+  2. `\component.md`
+  3. `\fin_model.md`
   4. `\trainier.md`
   5. `\pickle.md`
+  6. `\model.md`
 - __Notes for using python__ is in `\lang.md`
 
 ##Pre-warning

@@ -1,5 +1,5 @@
 from core import *
-from ether.component.initialize import init_shared
+from ether.component.init import init_shared
 
 def gausi_rbf(rbflayer):
     return ( T.pow( rbflayer.get_kernels() - rbflayer.get_inputTensor(), 2 ) ).sum()
