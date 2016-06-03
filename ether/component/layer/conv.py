@@ -34,9 +34,9 @@ class conv2DLayer(layer):
         '''
         self.bias = init_shared(shape=(self.n_fm,), **self.biasKwargs)
 
-    def init_filters(self, n_pre_fm):
+    def init_filter(self, n_pre_fm):
         self.filterShape = (self.n_fm, n_pre_fm) + self.filterDs
-        self.filters = init_shared(shape=self.get_filterShape(), **self.filterKwargs)
+        self.filter = init_shared(shape=self.get_filterShape(), **self.filterKwargs)
 
     def get_filterShape(self):
         return self.filterShape
@@ -49,9 +49,12 @@ class conv2DLayer(layer):
 
     def get_params(self):
         paramList = []
-        paramList.append( self.filters )
+        paramList.append( self.filter )
         paramList.append( self.bias )
         return paramList
+
+    def get_nparams(self):
+        return {'filter':self.filter, 'bias':self.bias}
 
     def connect(self, *layers):
         assert len(layers) == 1
@@ -61,9 +64,9 @@ class conv2DLayer(layer):
 
         #compute outputTensor
         n_pre_fm = self.inputShape[1]
-        self.init_filters(n_pre_fm)
+        self.init_filter(n_pre_fm)
         self.init_bias()
-        outputTensor = self.bias.dimshuffle('x', 0, 'x', 'x') + T.nnet.conv2d(input=self.get_inputTensor(), filters=self.filters, border_mode=self.border_mode)
+        outputTensor = self.bias.dimshuffle('x', 0, 'x', 'x') + T.nnet.conv2d(input=self.get_inputTensor(), filters=self.filter, border_mode=self.border_mode)
         self.set_outputTensor( outputTensor )
 
         #caculate shape
@@ -79,6 +82,9 @@ class maxPoolLayer(layer):
 
     def get_params(self):
         return []
+
+    def get_nparams(self):
+        return dict()
 
     def get_inputShape(self):
         return self.inputShape

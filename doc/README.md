@@ -37,3 +37,11 @@ But maintaing them in __front to back order__ is a good practice and is recommen
 An advanced version of parameters are offered.
 Since the __T.grad__ has a extra parameter called _considered\_constant_, it's extremly important in the case of computing gradients.
 Moreover, some components may require to compute extra _updates_ in the _training process_.
+
+###Consistency
+One of the few things I got mad at is the naming of parameters.
+Some literature prefer using _W_ for weights, _b_ for bias.
+Then, what about filters? Should we call them _f_?
+It's a kind of open debate.
+Now, for the sake of consistency, the parameters shouldn't use abbrevietion any more.
+Eg, _weights, bias, filter, kernel, vbias, hbias, hweights_ would be legal while _W, b_ wouldn't.

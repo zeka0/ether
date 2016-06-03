@@ -22,3 +22,6 @@ class dimShuffelLayer(layer):
 
     def get_params(self):
         return []
+
+    def get_nparams(self):
+        return dict()

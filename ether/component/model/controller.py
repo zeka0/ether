@@ -45,3 +45,6 @@ class controller:
         if isinstance(self.model, supervisedModel):
             return True
         else: return False
+
+    def feed_forward(self, input):
+        return self.model.feed_forward(input)

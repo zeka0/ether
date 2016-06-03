@@ -1,4 +1,4 @@
-from bm import *
+from rbm import *
 
 from net import *
 

@@ -1,10 +1,19 @@
 from ether.util.exception import *
 class trainer:
-    def __init__(self, dataBase, optimizer, validator, model):
+    def __init__(self, dataBase, optimizer, validator, model,
+                 train_ep=None, valid_ep=None):
+        '''
+        :param train_ep: Extra-Operation during traning process, called once per training
+        :type train_ep: EpBase
+        :param valid_ep: Extra-Operation during validating process, called once per validate
+        :type valid_ep: EpBase
+        '''
         self.model = model
         self.set_optimizer(optimizer)
         self.set_validator(validator)
         self.set_dataBase(dataBase)
+        self.train_ep = train_ep
+        self.valid_ep = valid_ep
 
     def compile(self):
         if self.optimizer is not None:
@@ -43,12 +52,16 @@ class trainer:
 
     def train(self, cycles):
         for i in xrange(cycles):
+            if self.train_ep is not None:
+                self.train_ep.call()#call train_ep
             if self.has_nextInstance(1):
                 instanceList = self.read_instances(1)
                 self.optimizer.train_once(instanceList[0].get_attr(), instanceList[0].get_target())
 
     def validate(self, cycles):
         for i in xrange(cycles):
+            if self.valid_ep is not None:
+                self.valid_ep.call()#call valid_ep
             if self.has_nextInstance(1):
                 instanceList = self.read_instances(1)
                 self.validator.validate_once(instanceList[0].get_attr(), instanceList[0].get_target())

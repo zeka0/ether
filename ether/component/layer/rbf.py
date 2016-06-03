@@ -2,7 +2,7 @@ from core import *
 from ether.component.init import init_shared
 
 def gausi_rbf(rbflayer):
-    return ( T.pow( rbflayer.get_kernels() - rbflayer.get_inputTensor(), 2 ) ).sum()
+    return ( T.pow( rbflayer.get_kernel() - rbflayer.get_inputTensor(), 2 ) ).sum()
 
 class RBFLayer(layer):
     '''
@@ -17,14 +17,17 @@ class RBFLayer(layer):
             self.kernelKwargs = kwargs['kernel']
             assert not self.kernelKwargs.has_key('shape') #No need to provide shape
 
-    def init_kernels(self, numOfConnections):
-        self.kernels = init_shared(shape=numOfConnections, **self.kernelKwargs)
+    def init_kernel(self, numOfConnections):
+        self.kernel = init_shared(shape=numOfConnections, **self.kernelKwargs)
 
-    def get_kernels(self):
-        return self.kernels
+    def get_kernel(self):
+        return self.kernel
 
     def get_params(self):
-        return [self.get_kernels()]
+        return [self.get_kernel()]
+
+    def get_nparams(self):
+        return {'kernel':self.kernel}
 
     def get_inputShape(self):
         return self.intputShape
@@ -36,20 +39,20 @@ class RBFLayer(layer):
         assert len(layers) == 1
         self.intputShape = layers[0].get_outputShape()
         self.set_inputTensor( layers[0].get_outputTensor() )
-        self.init_kernels( self.get_inputShape()[1] ) #assume inputShape is 1D
+        self.init_kernel( self.get_inputShape()[1] ) #assume inputShape is 1D
         outputTensor = self.func(self)
         self.set_outputTensor( outputTensor )
 
 class fixedRBFLayer(RBFLayer):
     '''
-    Uses user defined kernels and during the training, the kernels are not changed
-    However, the computation may report an mis-match error if user defined kernels with wrong shape
+    Uses user defined kernel and during the training, the kernel are not changed
+    However, the computation may report an mis-match error if user defined kernel with wrong shape
     '''
-    def __init__(self, func, kernels):
+    def __init__(self, func, kernel):
         RBFLayer.__init__(self, func)
-        self.kernels = kernels
+        self.kernel = kernel
 
-    def init_kernels(self, numOfConnections):
+    def init_kernel(self, numOfConnections):
         '''
         Ignore the input
         '''
@@ -57,3 +60,6 @@ class fixedRBFLayer(RBFLayer):
 
     def get_params(self):
         return []
+
+    def get_nparams(self):
+        return dict()

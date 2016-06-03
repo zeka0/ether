@@ -30,6 +30,9 @@ class merge1DLayer(layer):
     def get_params(self):
         return []
 
+    def get_nparams(self):
+        return dict()
+
     def connect(self, *layers):
         '''
         The outputTensor can't be a scala
@@ -64,6 +67,9 @@ class flattenLayer(layer):
 
     def get_params(self):
         return []
+
+    def get_nparams(self):
+        return dict()
 
     def get_inputShape(self):
         return self.inputShape

@@ -10,6 +10,16 @@ class component:
         '''
         raise NotImplementedError()
 
+    def get_nparams(self):
+        '''
+        Name-parameter-dict
+        Used in self.__dict__.update(obj.get_nparams())
+        Dedicated to sharing parameters across the components
+        :return the name and the symbolic tensor of the parameters
+        :rtype dictionary
+        '''
+        raise NotImplementedError()
+
     def get_inputTensor(self):
         '''
         :return the input to the component

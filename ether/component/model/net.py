@@ -34,6 +34,9 @@ class nnet(supervisedModel):
                 params.extend(self.layers[i].get_params()) #Add paras in specific-order
         return params
 
+    def get_nparams(self):
+        raise NotImplementedError('Net doesn\'t support nparams\n' )
+
     def get_inputTensor(self):
         return self.layers[0].get_inputTensor()
 

@@ -9,6 +9,9 @@ class activationLayer(layer):
     def get_params(self):
         return []
 
+    def get_nparams(self):
+        return dict()
+
 class sigmoidLayer(activationLayer):
     def __init__(self):
         activationLayer.__init__(self)

@@ -21,6 +21,8 @@ And also, I have restrained the rules.
 - [ ] Auto-encoder
 - [ ] Sparse coding
 - [ ] Combination of models.
+- [x] Dropout
+- [ ] Hessian Free Optimization
 
 
 ##Notes From Author:

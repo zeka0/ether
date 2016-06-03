@@ -1,6 +1,13 @@
 import theano
 import numpy as np
 from theano import tensor as T
+from theano.tensor.shared_randomstreams import RandomStreams
+
+#global random generator
+#for the purpose of definete parameterization of the nnet
+random_seed = 1234
+numpy_rng = np.random.RandomState(random_seed)
+theano_rng = RandomStreams(numpy_rng.randint(2 ** 30))
 
 def transform_shape(shape):
     if isinstance(shape, tuple):
@@ -38,14 +45,14 @@ def normal_init_shared(**kwargs):
     shape = transform_shape(shape)
     mean = kwargs['mean']
     std = kwargs['std']
-    return theano.shared( np.random.normal(loc=mean, scale=std, size=shape) )
+    return theano.shared( numpy_rng.normal(loc=mean, scale=std, size=shape) )
 
 def uniform_init_shared(**kwargs):
     shape = kwargs['shape']
     shape = transform_shape(shape)
     low = kwargs['low']
     high = kwargs['high']
-    return theano.shared( np.random.uniform(low=low, high=high, size=shape) )
+    return theano.shared( numpy_rng.uniform(low=low, high=high, size=shape) )
 
 def constant_init_shared(**kwargs):
     shape = kwargs['shape']

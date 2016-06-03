@@ -18,13 +18,25 @@ class RestrictedBM(unsupervisedModel):
         assert kwargs.has_key('weight')
         assert kwargs.has_key('hbias')
         assert kwargs.has_key('vbias')
-        assert not kwargs['weight'].has_key('shape')
-        assert not kwargs['vbias'].has_key('shape')
-        assert not kwargs['hbias'].has_key('shape')
 
-        self.W = init_shared(shape=(n_visible, n_hidden), **kwargs['weight'] )
-        self.hbias = init_shared(shape=(n_hidden,), **kwargs['hbias'] )
-        self.vbias = init_shared(shape=(n_visible,), **kwargs['vbias'] )
+        if not isinstance(kwargs['weight'], dict):
+            self.weight = kwargs['weight']
+        else:
+            assert not kwargs['weight'].has_key('shape')
+            self.weight = init_shared(shape=(n_visible, n_hidden), **kwargs['weight'] )
+
+        if not isinstance(kwargs['vbias'], dict):
+            self.vbias = kwargs['vbias']
+        else:
+            assert not kwargs['vbias'].has_key('shape')
+            self.vbias = init_shared(shape=(n_visible,), **kwargs['vbias'] )
+
+        if not isinstance(kwargs['hbias'], dict):
+            self.hbias = kwargs['hbias']
+        else:
+            assert not kwargs['hbias'].has_key('shape')
+            self.hbias = init_shared(shape=(n_hidden,), **kwargs['hbias'] )
+
         self.theano_rng = theano_rng
         self.persistent = persistent
         self.train_k = train_k
@@ -32,10 +44,17 @@ class RestrictedBM(unsupervisedModel):
         self.input = T.matrix()
 
     def get_params(self):
-        return [self.W, self.vbias, self.hbias]
+        return [self.weight, self.vbias, self.hbias]
+
+    def get_nparams(self):
+        nparam = dict()
+        nparam['weight'] = self.weight
+        nparam['vbias'] = self.vbias
+        nparam['hbias'] = self.hbias
+        return nparam
 
     def prop_up(self, vis):
-        pre_sigmoid_activation = T.dot(vis, self.W) + self.hbias
+        pre_sigmoid_activation = T.dot(vis, self.weight) + self.hbias
         return [pre_sigmoid_activation, T.nnet.sigmoid(pre_sigmoid_activation)]
 
     def sample_h_given_v(self, v0_sample):
@@ -45,7 +64,7 @@ class RestrictedBM(unsupervisedModel):
         return [pre_sigmoid_h1, h1_mean, h1_sample]
 
     def prop_down(self, hid):
-        pre_sigmoid_activation = T.dot(hid, self.W.T) + self.vbias
+        pre_sigmoid_activation = T.dot(hid, self.weight.T) + self.vbias
         return [pre_sigmoid_activation, T.nnet.sigmoid(pre_sigmoid_activation)]
 
     def sample_v_given_h(self, h0_sample):
@@ -67,7 +86,7 @@ class RestrictedBM(unsupervisedModel):
                 pre_sigmoid_v1, v1_mean, v1_sample]
 
     def free_energy(self, v_sample):
-        wx_b = T.dot(v_sample, self.W) + self.hbias
+        wx_b = T.dot(v_sample, self.weight) + self.hbias
         vbias_term = T.dot(v_sample, self.vbias)
         hidden_term = T.sum(T.log(1 + T.exp(wx_b)), axis=1)
         return -vbias_term - hidden_term
