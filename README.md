@@ -18,12 +18,12 @@ And also, I have restrained the rules.
 ###Future Improvements
 - [ ] RNN
 - [x] Restricted Boltzmann Machine
-- [ ] Auto-encoder
+- [x] Auto-encoder
 - [ ] Sparse coding
 - [ ] Combination of models.
 - [x] Dropout
 - [ ] Hessian Free Optimization
-
+- [ ] Pre-Training
 
 ##Notes From Author:
 - Neural network is really tough to learn.

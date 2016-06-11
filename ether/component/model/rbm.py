@@ -4,17 +4,16 @@ import numpy as np
 from theano.tensor.shared_randomstreams import RandomStreams
 from core import unsupervisedModel
 from ether.component.init import init_shared, init_input
+from ether.component.init import theano_rng
 
 class RestrictedBM(unsupervisedModel):
     def __init__(self,
                  n_visible, n_hidden, train_k=1, sample_k=1000,
-                 theano_rng=None, persistent=None,
+                 persistent=None,
                  **kwargs):
         self.n_visible = n_visible
         self.n_hidden = n_hidden
 
-        if theano_rng is None:
-            theano_rng = RandomStreams(np.random.randint(2**30))
         assert kwargs.has_key('weight')
         assert kwargs.has_key('hbias')
         assert kwargs.has_key('vbias')
@@ -166,10 +165,10 @@ class RestrictedBM(unsupervisedModel):
         return self.input
 
     def get_inputShape(self):
-        return (self.n_visible, 1)
+        return (1, self.n_visible)
 
     def get_outputShape(self):
-        return (self.n_visible, 1)
+        return self.get_inputShape()
 
     def reset_sample_k(self, sample_k):
         self.sample_k = sample_k
