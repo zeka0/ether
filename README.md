@@ -43,4 +43,6 @@ However, you may see some implementations of the layers support the mini-batch, 
 Thought this could mean that the computation could be slower, the mini-batch can be simulated anyway.
 
 ##Acknowleges
-I have learned a lot from __deeplearning.net__, part of the library is inspired by their work.
+- rnnrbm code source from __deeplearning.net__
+- midi is provided by __deeplearning.net__
+- hessian free code originated from __https://github.com/boulanni/theano-hf__

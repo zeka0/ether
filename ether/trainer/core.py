@@ -3,14 +3,24 @@ from ether.component.model.controller import controller
 from theano import tensor as T
 import theano
 
-class optimizerBase(controller):
-    def set_owner(self, nnet):
+class optimizer(controller):
+    def set_owner(self, model):
         '''
-        To initialize the cost function
+        Call controller.set_owner(self, model)
         '''
-        controller.set_owner(self, nnet)
+        controller.set_owner(self, model)
         self.init_train()
 
+    def init_train(self):
+        '''
+        Called after the owner is set
+        '''
+        raise NotImplementedError()
+
+    def train_once(self, attr, tar):
+        raise NotImplementedError()
+
+class optimizerBase(optimizer):
     def get_updates(self):
         '''
         :return updates for trainable parameters

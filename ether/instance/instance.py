@@ -27,3 +27,13 @@ class imgInstance(instance):
         vecPoss = np.zeros(numOfTars)
         vecPoss[tar] = 1
         instance.__init__( self, img, vecPoss )
+
+class unlabledInstance:
+    def __init__(self, vecOfAttr):
+        self.vecOfAttr = vecOfAttr
+
+    def get_attr(self):
+        return self.vecOfAttr
+
+    def reset_attr(self, vecOfAttr):
+        self.vecOfAttr = vecOfAttr
