@@ -40,8 +40,8 @@ def shared_zeros(*shape):
     return theano.shared(numpy.zeros(shape, dtype=theano.config.floatX))
 
 
-from core import supervisedModel
-class RnnRbm(supervisedModel):
+from core import unsupervisedModel
+class RnnRbm(unsupervisedModel):
     def __init__(self, n_visible, n_hidden, n_hidden_recurrent, **kwargs):
         '''
         Constructs and compiles Theano functions for training and sequence generation.
@@ -106,27 +106,23 @@ class RnnRbm(supervisedModel):
 
         u0 = T.zeros((n_hidden_recurrent,))  # initial value for the RNN hidden
 
-        (u_t, bv_t, bh_t), updates_train = theano.scan(
+        (u_t, bv_t, bh_t), self.updates_train = theano.scan(
             lambda v_t, u_tm1, *_: self.recurrence(v_t, u_tm1),
-            sequences=self.input, outputs_info=[u0, None, None], non_sequences=params)
-        v_sample, cost, monitor, updates_rbm = build_rbm(self.input, self.weight, bv_t[:], bh_t[:],
+            sequences=self.input, outputs_info=[u0, None, None], non_sequences=self.params)
+        v_sample, self.cost, self.monitor, updates_rbm = build_rbm(self.input, self.weight, bv_t[:], bh_t[:],
                                                          k=15)
-        updates_train.update(updates_rbm)
+        self.updates_train.update(updates_rbm)
 
         # symbolic loop for sequence generation
-        (v_t, u_t), updates_generate = theano.scan(
+        (self.v_t, u_t), updates_generate = theano.scan(
             lambda u_tm1, *_: self.recurrence(None, u_tm1),
             outputs_info=[None, u0], non_sequences=self.params, n_steps=200)
 
-        gradient = T.grad(cost, self.params, consider_constant=[v_sample])
-        self.train_function = theano.function(
-            [self.input],
-            monitor,
-            updates=updates_train
-        )
+        gradient = T.grad(self.cost, self.params, consider_constant=[v_sample])
+        self.gparams = [(param, g) for param, g in zip(self.params, gradient)]
         self.generate_function = theano.function(
-            [],
-            v_t,
+            [self,input],
+            self.v_t,
             updates=updates_generate
         )
 
@@ -135,12 +131,50 @@ class RnnRbm(supervisedModel):
         bh_t = self.hbias + T.dot(u_tm1, self.uhweight)
         generate = v_t is None
         if generate:
-            v_t, _, _, updates = build_rbm(T.zeros((self.n_visible,)), self.weight, bv_t,
+            v_t, _, _, updates = build_rbm(self.input, self.weight, bv_t,
                                            bh_t, k=25)
         u_t = T.tanh(self.ubias+ T.dot(v_t, self.vuweight) + T.dot(u_tm1, self.uuweight))
         return ([v_t, u_t], updates) if generate else [u_t, bv_t, bh_t]
 
+    def get_cost(self):
+        return self.cost
+
+    def get_monitoring_cost(self):
+        return self.monitor
+
+    def get_nparams(self):
+        nparams = dict()
+        nparams['weight'] = self.weight
+        nparams['uhweight'] = self.uhweight
+        nparams['uvweight'] = self.uvweight
+        nparams['vuweight'] = self.vuweight
+        nparams['uuweight'] = self.uuweight
+        nparams['vbias'] = self.vbias
+        nparams['hbias'] = self.hbias
+        nparams['ubias'] = self.ubias
+        return nparams
+
+    def get_params(self):
+        return self.params
+
+    def get_gparams(self):
+        return self.gparams
+
+    def get_outputShape(self):
+        return self.get_inputShape()
+
+    def get_inputShape(self):
+        return (1, self.n_visible)
+
+    def get_extra_updates(self):
+        return self.updates_train
+
+    def get_inputTensor(self):
+        return self.input
+
+    def get_outputTensor(self):
+        return self.v_t
+
     def feed_forward(self, input):
-        #TODO
-        sample = self.generate_function()
+        sample = self.generate_function(input)
         return sample

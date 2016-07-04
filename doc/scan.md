@@ -42,7 +42,7 @@ scan(fn=multiply_by_three, output_info=x, n_step=10)
 
 ###Notes for writting Scan
 - __The order of parameters of fn is very important__
-- __The number of the returned values of fn should be less or equal than the number of parameters of fn__.
+- __The number of the returned values of fn should be greater or equal than the len(output_info)__.
 This is because of the output_info here.
 - __len(output_info) + len(sequences) + len(non_sequences) == len(parameters of fn)__
 - __If you really can't decide the number of parameters or returned values, use '*args'__.
