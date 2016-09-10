@@ -58,13 +58,9 @@ class optimizerBase(optimizer):
             )
 
     def train_once(self, attr, tar):
-        try:
-            if self.is_supervise():
-                return self.train(attr, tar) #Discard output
-            else: return self.train(attr)
-        except instanceException:
-            #no more instances available
-            print 'exception occured in instance availability'
+        if self.is_supervise():
+            return self.train(attr, tar) #Discard output
+        else: return self.train(attr)
 
 
 class validatorBase(controller):

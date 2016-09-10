@@ -1,5 +1,6 @@
 import numpy as np
 from ether.instance.instance import instance
+import nltk
 
 '''
 If you don't want to filter the instances
@@ -65,3 +66,35 @@ class dimFilter(filterBase):
     def filter(self, data):
         data.reset_attr(data.get_attr().reshape(self.neo_shape))
         return data
+
+class nltkFilter(filterBase):
+    sentence_start_token = 'SENTENCE_START'
+    sentence_end_token = 'SENTENCE_END'
+    unknown_token = 'UNKOEN_TOKEN'
+    vocabulary_size = 8000
+
+    '''
+    Used to convert strings of letters to numbers
+    With start-token and end-token
+    '''
+    def __init__(self):
+        pass
+
+    def filter(self, data):
+        datax = data.get_attr()
+        datax = '%s %s %s' % (nltkFilter.sentence_start_token, datax, nltkFilter.sentence_end_token)
+        datax = nltk.tokenize(datax)
+        word_freq = nltk.FreqDist(datax)
+        vocab = word_freq.most_common(nltkFilter.vocabulary_size-1)
+        index_to_word = [x[0] for x in vocab]
+        index_to_word.append(nltkFilter.unknown_token)
+        word_to_index = dict([(w,i) for i,w in enumerate(index_to_word)])
+
+        datax = [w if w in word_to_index else nltkFilter.unknown_token for w in datax]
+
+        '''The target of a sentence is one space shift of the original sentence'''
+        train = np.asarray([[word_to_index[w] for w in datax[:-1]]])
+        target = np.asarray([[word_to_index[w] for w in datax[1:]]])
+        data.reset_attr(train)
+        data.reset_tar(target)
+

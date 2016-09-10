@@ -9,6 +9,13 @@ I personally found that theano.scan is the most astonishing method provided by t
 - __non_sequences__ the constant in the parameters
 - __n_steps__ the number of iterations, may conflicts with **sequences**
 
+###Sequences
+Sequences could be more than one dimension.
+However, when this happens, take test_sequences=[[1,2,3], [4,5,6]] for example.
+When applied to scan(fn=lambda x, y: x * y, sequences=test_sequences),
+it will execute lambda 1, 2; then lambda 2, 5; then lambda 3, 6.
+That's because scan treats sequences[0] and sequences[1] as seperate sequence for parameters of fn.
+
 ###The order of the parameters
 The general order of parameters applied to __fn(the first parameter of theano.scan)__ is as follows.
 - First is the __output_info__.

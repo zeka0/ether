@@ -10,8 +10,7 @@ class fullPool(poolBase):
     '''
     def __init__(self, data, sdRewind):
         self.data = data
-        #TODO enable next sentence
-        #assert len(data) != 0
+        assert len(data) != 0
         self.sdRewind = sdRewind
         self.currPointer = 0
 

@@ -14,20 +14,40 @@ import numpy, sys
 import theano
 import theano.tensor as T
 
+def detect_nan(i, node, fn, msg):
+    for output in fn.outputs:
+        if (not isinstance(output[0], numpy.random.RandomState) and
+            numpy.isnan(output[0]).any()):
+            print msg
+            print('*** NaN detected ***')
+            #theano.printing.debugprint(node)
+            #print('Inputs : %s' % [input[0] for input in fn.inputs])
+            #print('Outputs: %s' % [output[0] for output in fn.outputs])
+            break
+
 def gauss_newton_product(cost, params, v, s):  # this computes the product Gv = J'HJv (G is the Gauss-Newton matrix)
-    if s.ndim != 0:
-        s = T.sum(s)
-    Jv = T.Rop(s, params, v)
+
+    try:
+        Jv = T.Rop(s, params, v)
+    except Exception as ex:
+        print 'Exception occured during Rop\n', ex, '\nTrying alternative implementation'
+        Jv = 0
+        #TODO flatten required for non-ndim==1 variables
+        st = s if s.ndim == 1 else T.flatten(s, outdim=1)
+        for pi, vi in zip(params, v):
+            Jv = Jv + T.dot(T.flatten(theano.gradient.jacobian(st, pi, disconnected_inputs='ignore'), outdim=2), T.flatten(vi, outdim=1))
+
     HJv = T.grad(T.sum(T.grad(cost, s)*Jv), s, consider_constant=[Jv], disconnected_inputs='ignore')
     Gv = T.grad(T.sum(HJv*s), params, consider_constant=[HJv, Jv], disconnected_inputs='ignore')
     Gv = map(T.as_tensor_variable, Gv)  # for CudaNdarray
     return Gv
 
 
+#TODO computation results in NAN(not a number)
 class HessianFreeOptimizer(optimizerBase):
     def __init__(self, h=None, ha=None,
                  initial_lambda=0.1, mu=0.03, preconditioner=False,
-                 max_cg_iterations=250, num_updates=100, patience=numpy.inf):
+                 max_cg_iterations=250, patience=numpy.inf):
         '''
         Constructs and compiles the necessary Theano functions.
 
@@ -39,9 +59,6 @@ class HessianFreeOptimizer(optimizerBase):
         :param preconditioner: Whether to use Martens' preconditioner.
         :type max_cg_iterations: int
         :param max_cg_iterations: CG stops after this many iterations regardless of the stopping criterion.
-        :type num_updates: int
-        :param num_updates: Training stops after this many parameter updates regardless of `patience`.
-
         :type h: Theano variable or None
         :param h: Structural damping is applied to this variable (typically the hidden units of an RNN).
         :type ha: Theano variable or None
@@ -55,10 +72,14 @@ class HessianFreeOptimizer(optimizerBase):
         self.mu = mu
         self.preconditioner = preconditioner
         self.max_cg_iterations = max_cg_iterations
-        self.num_updates = num_updates
         self.patience = patience
 
     def init_train(self):
+        '''
+        f_gc computing gradients
+        f_cost computing cost
+        f_Gv computing Gv matrix
+        '''
         if self.is_supervise():
             inputs = [self.get_inputTensor(), self.get_targetTensor()]
         else: inputs = [self.get_inputTensor()]
@@ -69,8 +90,13 @@ class HessianFreeOptimizer(optimizerBase):
 
         g = [gp[0] for gp in self.get_gparams()]
         g = map(T.as_tensor_variable, g)  # for CudaNdarray
-        self.f_gc = theano.function(inputs, g + [self.get_cost()], on_unused_input='ignore')  # during gradient computation
-        self.f_cost = theano.function(inputs, self.get_cost(), on_unused_input='ignore')  # for quick cost evaluation
+
+        self.f_gc = theano.function(inputs, g, on_unused_input='ignore',
+                                    mode=theano.compile.MonitorMode(
+                                        post_func=lambda i, node, fn:detect_nan(i, node, fn, 'In gradient compute')))  # during gradient computation
+        self.f_cost = theano.function(inputs, self.get_cost(), on_unused_input='ignore',
+                                      mode=theano.compile.MonitorMode(
+                                          post_func=lambda i, node, fn:detect_nan(i, node, fn, 'In cost compute')))  # during gradient computation
 
         symbolic_types = T.scalar, T.vector, T.matrix, T.tensor3, T.tensor4
 
@@ -88,16 +114,21 @@ class HessianFreeOptimizer(optimizerBase):
         else:
             givens = {}
 
-        self.function_Gv = theano.function(inputs + v + [coefficient], Gv, givens=givens,
-                                           on_unused_input='ignore')
+        self.f_Gv = theano.function(inputs + v + [coefficient], Gv, givens=givens,
+                                           on_unused_input='ignore', mode=theano.compile.MonitorMode(
+                post_func=lambda i, node, fn:detect_nan(i, node, fn, 'In Gv compute')))  # during gradient computation
 
     def cg(self, b):
+        '''
+        b is a list of negative gradients of parameters in network
+        In standard CG equition, Ax = b
+        Here A is th GV matrix of d(a vector)
+        M is the preconditioner
+        '''
         if self.preconditioner:
             M = self.lambda_ * numpy.ones_like(b)
-            M += self.list_to_flat(self.f_gc(self.attr, self.tar)[:len(self.params)])**2  #/ self.cg_dataset.number_batches**2
-            #print 'precond~%.3f,' % (M - self.lambda_).mean(),
-            M **= -0.75  # actually 1/M
-            sys.stdout.flush()
+            M += self.list_to_flat(self.f_gc(self.attr, self.tar)[:len(self.params)])**2
+            M **= -1  #or M **= -0.75
         else:
             M = 1.0
 
@@ -121,7 +152,7 @@ class HessianFreeOptimizer(optimizerBase):
             d = s + (delta_new / delta_old) * d
 
             if i >= int(numpy.ceil(1.3**len(backtracking))):
-                backtracking.append((x.copy(), i))
+                backtracking.append((self.quick_cost(x), x.copy(), i))
 
             phi_i = -0.5 * numpy.dot(x, r + b)
             phi.append(phi_i)
@@ -144,7 +175,7 @@ class HessianFreeOptimizer(optimizerBase):
         v = self.flat_to_list(vector)
         if lambda_ is None: lambda_ = self.lambda_
         result = lambda_*vector  # Tikhonov damping
-        result += self.list_to_flat(self.function_Gv(self.attr, self.tar, v, lambda_*self.mu))
+        result += self.list_to_flat(self.f_Gv(*([self.attr, self.tar] + v + [lambda_*self.mu])))
         return result
 
     def quick_cost(self, delta=0):
@@ -169,39 +200,17 @@ class HessianFreeOptimizer(optimizerBase):
     def train_once(self, attr, tar):
         self.attr = attr
         self.tar = tar
-        best = [0, numpy.inf, None]  # iteration, cost, params
-        first_iteration = 1
 
-        for u in xrange(first_iteration, 1 + self.num_updates):
-            print 'update %i/%i,' % (u, self.num_updates),
-            sys.stdout.flush()
+        gradient = self.list_to_flat( self.f_gc(attr, tar) )
 
-            gradient = numpy.zeros(sum(self.sizes), dtype=theano.config.floatX)
-            cost = []
-            result = self.f_gc(self.attr, self.tar)
-            gradient += self.list_to_flat(result[:len(self.params)])
-            cost.append(result[len(self.params):])
+        after_cost, flat_delta, backtracking, num_cg_iterations = self.cg(-gradient)
+        delta_cost = numpy.dot(flat_delta, gradient + 0.5*self.stochastic_Gv(flat_delta, lambda_=0))  # disable damping
+        before_cost = self.quick_cost()
+        for i, delta in zip(self.params, self.flat_to_list(flat_delta)):
+            i.set_value(i.get_value() + delta)
 
-            print 'cost=', numpy.mean(cost, axis=0),
-            print 'lambda=%.5f,' % self.lambda_,
-            sys.stdout.flush()
-
-            after_cost, flat_delta, backtracking, num_cg_iterations = self.cg(-gradient)
-            delta_cost = numpy.dot(flat_delta, gradient + 0.5*self.stochastic_Gv(flat_delta, lambda_=0))  # disable damping
-            before_cost = self.quick_cost()
-            for i, delta in zip(self.params, self.flat_to_list(flat_delta)):
-                i.set_value(i.get_value() + delta)
-
-            rho = (after_cost - before_cost) / delta_cost  # Levenberg-Marquardt
-            if rho < 0.25:
-                self.lambda_ *= 1.5
-            elif rho > 0.75:
-                self.lambda_ /= 1.5
-
-            if u - best[0] > self.patience:
-                print 'PATIENCE ELAPSED, BAILING OUT'
-                break
-
-        if best[2] is None:
-            best[2] = [i.get_value().copy() for i in self.params]
-        return best[2]
+        rho = (after_cost - before_cost) / delta_cost  # Levenberg-Marquardt
+        if rho < 0.25:
+            self.lambda_ *= 1.5
+        elif rho > 0.75:
+            self.lambda_ /= 1.5

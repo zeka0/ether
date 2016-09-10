@@ -1,7 +1,7 @@
 '''
 Reading data from source
 '''
-from cvs import *
+from csv import *
 
 from mnist import *
 

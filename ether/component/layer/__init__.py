@@ -5,3 +5,4 @@ from core import inputLayer
 from merge import *
 from weight import *
 from dropout import dropoutLayer
+from recurrent import *

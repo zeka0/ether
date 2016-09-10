@@ -5,38 +5,45 @@ from ether.instance.instance import instance
 from ether.util import *
 from core import dataReader
 
-class cvsDataReader(dataReader):
+class csvDataReader(dataReader):
     '''
     hasTitle specifies whether the cvs file has title attributes
     colSelected is a list specifying which column should be used
     targetSelected is a list specifing which column should be treated as targetValue
     '''
-    def __init__(self, tarInter, valInter, maxLen,
-                 filePath, colSelected, targetSelected,
+    def __init__(self, filePath,
+                 maxQueueLen, colSelected, targetSelected=-1,
                  headLength=0, hasTitle=False):
-        self.instanceBuff = deque(maxlen=maxLen)
-        self.tarInter=tarInter
-        self.valInter=valInter
+        '''
+        colSelected should be a list
+        targetSelected should specify a column number
+        targetSelected == -1 means no targets provided
+        maxLen is the maxium of the readable instance
+        '''
+        self.instanceBuff = deque(maxlen=maxQueueLen)
         self.dataSource=open(filePath, 'rU') #Read Universial
-        self.__cvs_init__(headLength, hasTitle, colSelected, targetSelected)
+        self.__csv_init__(headLength, hasTitle, colSelected, targetSelected)
 
     def __select_colTar__(self, line):
         titles = line.split(',')
         colSel=[] #Col-Selected could be multiple indices
         for col in self.colSelected:
-            if col < len(titles):
+            if col < len(titles) and col >= 0:
                 colSel.append(titles[col])
             else:
                 raise formatException('Index Out Of Range')
 
-        if self.targetSelected < len(titles):
+        '''targetSelected = -1 means no targets found'''
+        if self.targetSelected < len(titles) and self.targetSelected >= 0:
             tarSel=titles[self.targetSelected]
+        elif self.targetSelected == -1:
+            tarSel = None
         else:
             raise formatException('Index Out Of Range')
 
         return (colSel, tarSel)
 
-    def __cvs_init__(self, headLength, hasTitle, colSelected, targetSelected):
+    def __csv_init__(self, headLength, hasTitle, colSelected, targetSelected):
         '''
         Parsing and recording relevant infomation
         '''
@@ -54,9 +61,7 @@ class cvsDataReader(dataReader):
             line = self.dataSource.readline()
             if line is not None:
                 colSel, tarSel = self.__select_colTar__(line)
-                #Use interpreter to interprete the values
-                yield instance(self.valInter.create_tuple(colSel),
-                                        self.tarInter.create_tuple(tarSel))
+                yield instance(colSel, tarSel)
             else: break
 
     def has_nextInstance(self, size):
@@ -67,22 +72,14 @@ class cvsDataReader(dataReader):
             return False
         else: return True
 
-    def get_numOf_Attrs(self):
-        return self.valInter.get_numOf_attrs()
-
-    def get_numOf_Targets(self):
-        return self.tarInter.get_numOf_attrs()
-
     def close_file(self):
         self.dataSource.close()
 
-    def read_all(self, init_batch=1000):
+    def read_all(self):
         tmp = []
-        while init_batch != 0:
-            while self.has_nextInstance(init_batch):
-                for ins in self.read_instance(init_batch):
-                    tmp.append(ins)
-            init_batch = init_batch / 2
+        while self.has_nextInstance(1):
+            for ins in self.read_instance(1):
+                tmp.append(ins)
         return tmp
 
     def read_instance(self, batchSize=1): #Generator
@@ -105,7 +102,7 @@ class cvsDataReader(dataReader):
     def avail_sizeNow(self):
         return len(self.instanceBuff)
 
-class cvsScanner:
+class csvScanner:
     '''
     Cvs scanner treats the first column in a cvs file has index '0'
     CvsScanner scans the whole cvs file to find classes that is required to make a interpreter

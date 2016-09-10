@@ -120,6 +120,8 @@ class RnnRbm(unsupervisedModel):
 
         gradient = T.grad(self.cost, self.params, consider_constant=[v_sample])
         self.gparams = [(param, g) for param, g in zip(self.params, gradient)]
+
+        #TODO input here isn't used
         self.generate_function = theano.function(
             [self,input],
             self.v_t,

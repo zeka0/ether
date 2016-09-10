@@ -31,19 +31,13 @@ print h
 print activations
 print updates
 
-def xxxx(a, b, c):
-    print 'a', a
-    print 'b', b
-    print 'c', c
-    return [a, b]
+x = [T.matrix(), T.matrix(), T.matrix()]
+y = 1
+for i in xrange(len(x)):
+    y = y * x[i]
+y = y.sum()
+yz = [y, y, y]
+z = [T.vector(), T.vector(), T.vector()]
+u = T.Rop(y, x, z)
+print u
 
-x = T.dvector()
-y = T.dvector()
-z = T.dscalar()
-result, updates = theano.scan(fn=xxxx,
-                              outputs_info=None,
-                              sequences=[x, y],
-                              non_sequences=z)
-
-fun = theano.function(inputs=[x, y, z], outputs=result, updates=updates)
-print fun([0, 0.1, 0.2], [1, 1.1, 1.2], 3)

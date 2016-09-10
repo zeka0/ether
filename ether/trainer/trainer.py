@@ -51,18 +51,26 @@ class trainer:
         else: raise instanceException('model has no more instances')
 
     def train(self, cycles):
-        for i in xrange(cycles):
-            if self.train_ep is not None:
-                self.train_ep.call()#call train_ep
-            if self.has_nextInstance(1):
-                instanceList = self.read_instances(1)
-                self.optimizer.train_once(instanceList[0].get_attr(), instanceList[0].get_target())
+        try:
+            for i in xrange(cycles):
+                if self.train_ep is not None:
+                    self.train_ep.call()#call train_ep
+                if self.has_nextInstance(1):
+                    instanceList = self.read_instances(1)
+                    self.optimizer.train_once(instanceList[0].get_attr(), instanceList[0].get_target())
+        except instanceException:
+            #no more instances available
+            print 'exception occured in instance availability'
 
     def validate(self, cycles):
-        for i in xrange(cycles):
-            if self.valid_ep is not None:
-                self.valid_ep.call()#call valid_ep
-            if self.has_nextInstance(1):
-                instanceList = self.read_instances(1)
-                self.validator.validate_once(instanceList[0].get_attr(), instanceList[0].get_target())
-        return self.validator.get_error_rate()
+        try:
+            for i in xrange(cycles):
+                if self.valid_ep is not None:
+                    self.valid_ep.call()#call valid_ep
+                if self.has_nextInstance(1):
+                    instanceList = self.read_instances(1)
+                    self.validator.validate_once(instanceList[0].get_attr(), instanceList[0].get_target())
+            return self.validator.get_error_rate()
+        except instanceException:
+            #no more instances available
+            print 'exception occured in instance availability'
