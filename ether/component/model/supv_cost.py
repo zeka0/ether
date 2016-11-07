@@ -16,3 +16,4 @@ def lenet(opt):
 
 def negtive_log(opt):
     return -T.mean( T.log( opt.get_outputTensor() )[0][T.argmax(opt.get_targetTensor())] )
+

@@ -8,7 +8,7 @@ class recurrentLayer(layer):
     '''
     We can view weight-layer as a conv1D layer
     '''
-    def __init__(self, numOfHUnits, hiddenToHiddenFn=tanh, **kwargs):
+    def __init__(self, numOfHUnits, hiddenToHiddenFn=softmax, **kwargs):
         layer.__init__(self)
         self.numHUnits = numOfHUnits
         self.hiddenToHiddenFn = hiddenToHiddenFn #The activate function for hidden to hidden connection
@@ -24,12 +24,12 @@ class recurrentLayer(layer):
 
     def init_hiddenToVisible(self):
         #Init V
-        self.V= init_shared(shape=(self.get_inputShape()[0], self.numHUnits), **self.VKwargs)
+        self.V= init_shared(shape=(self.numHUnits, self.get_inputShape()[1]), **self.VKwargs)
 
     def init_visibleToHidden(self):
         #Init U
         #TODO may have bug in shape calculation
-        self.U= init_shared(shape=(self.numHUnits, self.get_inputShape()[0]), **self.UKwargs)
+        self.U= init_shared(shape=(self.get_inputShape()[1], self.numHUnits), **self.UKwargs)
 
     def init_hiddenToHidden(self):
         #Init W
@@ -56,7 +56,6 @@ class recurrentLayer(layer):
     def get_nparams(self):
         return {'U':self.U, 'V':self.V, 'W':self.W}
 
-
     def connect(self, *layers):
         assert len(layers) == 1
         self.inputShape = layers[0].get_outputShape()
@@ -66,15 +65,15 @@ class recurrentLayer(layer):
         self.init_visibleToHidden()
         self.init_hiddenToHidden()
         self.init_hiddenToVisible()
-        #TODO may have bug in U.dot(x_t) and return[..., o_t]
-        def forward_prop_step(x_t, s_t_prev, U, V, W):
-            s_t = self.hiddenToHiddenFn(U.dot(x_t) + W.dot(s_t_prev))
-            o_t = V.dot(s_t)
-            return [s_t, o_t]
 
-        [s_t, o_t], updates = theano.scan(fn=forward_prop_step,
-                                          outputs_info=[None, np.zeros((self.numHUnits, self.numHUnits))],
-                                          sequences=self.get_inputTensor(),
+        def forward_prop_step(x_t, s_t_prev, U, V, W):
+            s_t = self.hiddenToHiddenFn(U[:, T.cast(x_t, 'int32')] + T.dot(s_t_prev, W))
+            o_t = T.dot(s_t, V)
+            return o_t, s_t
+
+        [o_t, s_t], updates = theano.scan(fn=forward_prop_step,
+                                          sequences=T.flatten(self.get_inputTensor(), outdim=1),
+                                          outputs_info=[None, dict(initial=T.zeros((1, self.numHUnits)))],
                                           non_sequences=[self.U, self.V, self.W])
         outputTensor = o_t
         self.set_outputTensor(outputTensor)

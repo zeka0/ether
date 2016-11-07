@@ -68,6 +68,10 @@ class dimFilter(filterBase):
         return data
 
 class nltkFilter(filterBase):
+    '''
+    @Deprecated
+    Because nltkFilter has no way to bypass splitting sentences, it's deprecated
+    '''
     sentence_start_token = 'SENTENCE_START'
     sentence_end_token = 'SENTENCE_END'
     unknown_token = 'UNKOEN_TOKEN'
@@ -83,7 +87,7 @@ class nltkFilter(filterBase):
     def filter(self, data):
         datax = data.get_attr()
         datax = '%s %s %s' % (nltkFilter.sentence_start_token, datax, nltkFilter.sentence_end_token)
-        datax = nltk.tokenize(datax)
+        datax = nltk.sent_tokenize(datax)
         word_freq = nltk.FreqDist(datax)
         vocab = word_freq.most_common(nltkFilter.vocabulary_size-1)
         index_to_word = [x[0] for x in vocab]

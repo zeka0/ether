@@ -54,3 +54,11 @@ def dump_trainer(trainer):
     dump_model(trainer.get_model())
     dump_optimizer(trainer.get_optimizer())
     dump_validator(trainer.get_validator())
+
+def dump_pool(pool):
+    try:
+        with open( get_pool_fpath(), 'wb' ) as fi:
+            pickle.dump(pool, fi)
+    except Exception as ex:
+        print 'Exception occured in process of dumping optimizer'
+        print ex

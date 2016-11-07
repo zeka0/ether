@@ -53,7 +53,7 @@ class nnet(supervisedModel):
         return li
 
     def get_cost(self):
-        return self.cost_func( self )
+        return self.cost_func(self)
 
     def get_monitoring_cost(self):
         return self.monitor_cost_func( self )

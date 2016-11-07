@@ -65,6 +65,7 @@ class csvDataReader(dataReader):
             else: break
 
     def has_nextInstance(self, size):
+        #TODO not efficient
         currIndex = self.dataSource.tell()
         lines = self.dataSource.readlines()
         self.dataSource.seek(currIndex, os.SEEK_SET)

@@ -31,7 +31,7 @@ for l in layers:
     print l.get_outputShape()
 #Put together
 mnist_reader = mnistDataReader(filePath, 10)
-db = fullPool(mnist_reader.read_all(), True)
+db = fullInstancePool(mnist_reader.read_all(), True)
 #db = fullPool(None, True)
 db = filterPool(db, ff)
 n_net = nnet(layers, cost_func=negtive_log, monitor_cost_func=None)

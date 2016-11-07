@@ -5,7 +5,7 @@ filePath = r'E:\VirtualDesktop\nnet\minist\normed_double_mnist.pkl.gz'
 model_fname = 'lenet'
 
 mnist_reader = mnistDataReader(filePath, 10)
-db = fullPool(mnist_reader.read_all(), True)
+db = fullInstancePool(mnist_reader.read_all(), True)
 ff = dimFilter((1, 1, 28, 28))
 db = filterPool(db, ff)
 classifyVal = classifyValidator(argmax)

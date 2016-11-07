@@ -46,3 +46,12 @@ def load_trainer(dataBase):
     val = load_validator(model)
     tri = trainer(dataBase, opt, val, model)
     return tri
+
+def load_pool():
+    try:
+        with open( get_pool_fpath(), 'rb' ) as fi:
+            pool = pickle.load(fi)
+        return pool
+    except Exception as ex:
+        print 'Exception occured in process of loading model'
+        print ex
