@@ -68,8 +68,8 @@ class recurrentLayer(layer):
 
         def forward_prop_step(x_t, s_t_prev, U, V, W):
             s_t = self.hiddenToHiddenFn(U[:, T.cast(x_t, 'int32')] + T.dot(s_t_prev, W))
-            o_t = T.dot(s_t, V)
-            return o_t, s_t
+            o_t = softmax(T.dot(s_t, V))
+            return o_t[0], s_t
 
         [o_t, s_t], updates = theano.scan(fn=forward_prop_step,
                                           sequences=T.flatten(self.get_inputTensor(), outdim=1),
