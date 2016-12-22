@@ -37,7 +37,7 @@ for l in layers:
     print l.get_outputShape()
 #Put together
 n_net = nnet(layers, cost_func=negtive_log, monitor_cost_func=None)
-train_ep = DropoutResetEp(DP1, DP2)
+train_ep = DropoutResetEop(DP1, DP2)
 tri = trainer(db, opt, classifyVal, n_net, train_ep=train_ep)
 
 print 'compling the trainer'

@@ -9,11 +9,11 @@ Ep stands for extra operation
 2. Ep during a single cycle of validating process
 '''
 
-class EpBase:
+class EopBase:
     def call(self):
         raise NotImplementedError()
 
-class DropoutResetEp(EpBase):
+class DropoutResetEop(EopBase):
     '''
     Used to specially update the dropout layer's bitvec
     '''

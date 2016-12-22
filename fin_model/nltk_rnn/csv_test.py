@@ -1,4 +1,4 @@
-from ether.instance.format.neoCsv import neoCsvReader
+from ether.instance.format.fcvs import neoCsvReader
 
 debug = True
 filePath = r'E:\VirtualDesktop\nnet\csv\reddit-comments-2015-08.csv'
