@@ -8,7 +8,7 @@ Simply use other pools
 '''
 
 class filterBase:
-    def filter(self, data):
+    def filter(self, ins):
         raise NotImplementedError()
 
 class normFilter(filterBase):
@@ -23,18 +23,18 @@ class normFilter(filterBase):
         self.max = kwargs['max']
         self.sdConvert = kwargs['should_convert']
 
-    def filter(self, data):
-        if isinstance(data, instance):
+    def filter(self, ins):
+        if isinstance(ins, instance):
             if self.sdConvert:
-                data.reset_attr( np.array(data.get_attr(), dtype=np.double) )
-            datax = data.get_attr()
-            datax = (datax - self.min) / (self.max - self.min)
-            data.reset_attr(datax)
-            return data
+                ins.reset_attr( np.array(ins.get_attr(), dtype=np.double) )
+            insx = ins.get_attr()
+            insx = (insx - self.min) / (self.max - self.min)
+            ins.reset_attr(insx)
+            return ins
         else:
             if self.sdConvert:
-                data = np.array(data, dtype=np.double)
-            return (data - self.min) / (self.max - self.min)
+                ins = np.array(ins, dtype=np.double)
+            return (ins - self.min) / (self.max - self.min)
 
 class picFilter(filterBase):
     '''
@@ -46,26 +46,34 @@ class picFilter(filterBase):
         self.grey_num = kwargs['grey_num']
         self.white_num = kwargs['white_num']
 
-    def filter(self, data):
+    def filter(self, ins):
         '''
         grey_num is to specify the number to substitute the grey pixies in the image.
         white_num is to specify the number to substitute the white pixies in the image.
         '''
-        datax = data.get_attr()
-        boolArr = (datax == 0)
-        datax[boolArr] = self.white_num
+        insx = ins.get_attr()
+        boolArr = (insx == 0)
+        insx[boolArr] = self.white_num
         boolArr = (boolArr == False) #reverse the boolArr
-        datax[boolArr] = self.grey_num
-        data.reset_attr(datax)
-        return data
+        insx[boolArr] = self.grey_num
+        ins.reset_attr(insx)
+        return ins
 
 class dimFilter(filterBase):
-    def __init__(self, neo_shape):
-        self.neo_shape = neo_shape
+    '''
+    Change the shape of instances
+    If shape is None, it will maitain the original shape
+    '''
+    def __init__(self, neo_attr_shape=None, neo_tar_shape=None):
+        self.neo_attr_shape = neo_attr_shape
+        self.neo_tar_shape = neo_tar_shape
 
-    def filter(self, data):
-        data.reset_attr(data.get_attr().reshape(self.neo_shape))
-        return data
+    def filter(self, ins):
+        if self.neo_attr_shape is not None:
+            ins.reset_attr(ins.get_attr().reshape(self.neo_attr_shape))
+        if self.neo_tar_shape is not None:
+            ins.reset_tar(ins.get_target().reshape(self.neo_tar_shape))
+        return ins
 
 class nltkFilter(filterBase):
     '''
@@ -84,21 +92,21 @@ class nltkFilter(filterBase):
     def __init__(self):
         pass
 
-    def filter(self, data):
-        datax = data.get_attr()
-        datax = '%s %s %s' % (nltkFilter.sentence_start_token, datax, nltkFilter.sentence_end_token)
-        datax = nltk.sent_tokenize(datax)
-        word_freq = nltk.FreqDist(datax)
+    def filter(self, ins):
+        insx = ins.get_attr()
+        insx = '%s %s %s' % (nltkFilter.sentence_start_token, insx, nltkFilter.sentence_end_token)
+        insx = nltk.sent_tokenize(insx)
+        word_freq = nltk.FreqDist(insx)
         vocab = word_freq.most_common(nltkFilter.vocabulary_size-1)
         index_to_word = [x[0] for x in vocab]
         index_to_word.append(nltkFilter.unknown_token)
         word_to_index = dict([(w,i) for i,w in enumerate(index_to_word)])
 
-        datax = [w if w in word_to_index else nltkFilter.unknown_token for w in datax]
+        insx = [w if w in word_to_index else nltkFilter.unknown_token for w in insx]
 
         '''The target of a sentence is one space shift of the original sentence'''
-        train = np.asarray([[word_to_index[w] for w in datax[:-1]]])
-        target = np.asarray([[word_to_index[w] for w in datax[1:]]])
-        data.reset_attr(train)
-        data.reset_tar(target)
+        train = np.asarray([[word_to_index[w] for w in insx[:-1]]])
+        target = np.asarray([[word_to_index[w] for w in insx[1:]]])
+        ins.reset_attr(train)
+        ins.reset_tar(target)
 

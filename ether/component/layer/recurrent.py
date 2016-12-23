@@ -4,6 +4,11 @@ from ether.component.init import init_shared
 from ether.util.activation import *
 
 #TODO check the dimension of the inputs
+'''
+The input to recurrent layer should take form
+(number of batch, number of sequences, ...) where ... represents the dimension of a single time piece of the data
+Note that number of batch and number of seq could be wild card
+'''
 class recurrentLayer(layer):
     '''
     We can view weight-layer as a conv1D layer
@@ -24,12 +29,11 @@ class recurrentLayer(layer):
 
     def init_hiddenToVisible(self):
         #Init V
-        self.V= init_shared(shape=(self.numHUnits, self.get_inputShape()[1]), **self.VKwargs)
+        self.V= init_shared(shape=(self.numHUnits, self.get_inputShape()[-1]), **self.VKwargs)
 
     def init_visibleToHidden(self):
         #Init U
-        #TODO may have bug in shape calculation
-        self.U= init_shared(shape=(self.get_inputShape()[1], self.numHUnits), **self.UKwargs)
+        self.U= init_shared(shape=(self.get_inputShape()[-1], self.numHUnits), **self.UKwargs)
 
     def init_hiddenToHidden(self):
         #Init W
@@ -59,21 +63,25 @@ class recurrentLayer(layer):
     def connect(self, *layers):
         assert len(layers) == 1
         self.inputShape = layers[0].get_outputShape()
-        assert len(self.inputShape) == 2
+        assert len(self.inputShape) == 3
+
+        #change the order
         self.set_inputTensor( layers[0].get_outputTensor() )
+        input = self.get_inputTensor().dimshuffle(1, 0, 2)
 
         self.init_visibleToHidden()
         self.init_hiddenToHidden()
         self.init_hiddenToVisible()
 
         def forward_prop_step(x_t, s_t_prev, U, V, W):
-            s_t = self.hiddenToHiddenFn(U[:, T.cast(x_t, 'int32')] + T.dot(s_t_prev, W))
+            s_t = self.hiddenToHiddenFn(U.dot(x_t) + T.dot(s_t_prev, W))
             o_t = softmax(T.dot(s_t, V))
-            return o_t[0], s_t
+            return o_t, s_t
 
         [o_t, s_t], updates = theano.scan(fn=forward_prop_step,
-                                          sequences=T.flatten(self.get_inputTensor(), outdim=1),
+                                          sequences=input,
                                           outputs_info=[None, dict(initial=T.zeros((1, self.numHUnits)))],
                                           non_sequences=[self.U, self.V, self.W])
-        outputTensor = o_t
+        #switch batch number with seq number
+        outputTensor = o_t.dimshuffle(1, 0, 2)
         self.set_outputTensor(outputTensor)

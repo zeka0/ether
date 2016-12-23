@@ -2,14 +2,16 @@ from core import poolBase
 
 class filterPool(poolBase):
     '''
-    Pre-process the data before returning it.
+    Pre-process the ins before returning it.
     Since the subclass of poolBase can be so many, I used a different mechanism here.
     The pool arguement must a subclass of poolBase.
+
+    Now support a list of filters, applied from index 0 to index -1 iterately
     '''
-    def __init__(self, pool, filter):
+    def __init__(self, pool, flist):
         assert isinstance(pool, poolBase)
         self.pool = pool
-        self.filter = filter
+        self.flist = flist
 
     def has_nextInstance(self, batchSize):
         return self.pool.has_nextInstance(batchSize)
@@ -21,8 +23,10 @@ class filterPool(poolBase):
         '''
         Always returns a list
         '''
-        dataList = self.pool.read_instances(batchSize)
+        insList = self.pool.read_instances(batchSize)
         filterList = []
-        for data in dataList:
-            filterList.append(self.filter.filter(data))
+        for ins in insList:
+            for filter in self.flist:
+                ins = filter.filter(ins)
+            filterList.append(ins)
         return filterList

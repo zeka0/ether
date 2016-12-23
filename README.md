@@ -11,9 +11,13 @@
 - Before you start using the nnet, plz read the __Rules & Cautions__ blocks below.
 
 ###Version notes
-In this version, I have replaced the old _signal.conv2d_. 
-Because though this version provides you with more flexibilities, it's considerably slower than _T.nnet.conv2d_.
-And also, I have restrained the rules.
+In this version, we have done a major change.
+The neunet now supports __batch-based training__!
+This means that you can choose mini-batch to train your model.
+In __lenet__ example, 4000 iterations with batch size of 1 results in error rate 0.08.
+While __4000 iterations with batch size of 2 results in error rate 0.053__.
+
+However, some components of the library still don't support mini-batch, future work will add it.
 
 ###Future Improvements
 - [ ] RNN
@@ -24,6 +28,7 @@ And also, I have restrained the rules.
 - [x] Dropout
 - [ ] Hessian Free Optimization
 - [ ] Pre-Training
+- [x] Mini-batch
 
 ##Notes From Author:
 - Neural network is really tough to learn.

@@ -1,4 +1,13 @@
 import numpy as np
+
+def make_batch(inslist):
+    attr_list = []
+    tar_list = []
+    for ins in inslist:
+        attr_list.append(ins.get_attr()[0])
+        tar_list.append(ins.get_target()[0])
+    return instance(attr_list, tar_list)
+
 class instance(object):
     '''
     instance is not responsible for shaping the vector

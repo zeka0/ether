@@ -29,9 +29,12 @@ class classifyValidator(validatorBase):
         index = self.validation_function(predict)#The returned value is a ndarray
         if self.valid_print:
             print 'Predicted Index', index
+            print 'Target Index', target
         if isinstance(target, int):
             return target == index
-        else: return target[index] == 1
+        elif len(target.shape) == 1:
+            return target[index] == 1
+        else: return target[0][index] == 1
 
 def gausi_distance(predict, target):
     return (T.abs_(predict-target)/target).mean()

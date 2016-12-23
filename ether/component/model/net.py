@@ -10,7 +10,7 @@ class nnet(supervisedModel):
     '''
     def __init__(self, layers, cost_func, monitor_cost_func):
         self.set_layers( layers )
-        self.targetTensor=T.vector()
+        self.targetTensor=T.matrix()
         self.cost_func = cost_func
         self.monitor_cost_func = monitor_cost_func
 
