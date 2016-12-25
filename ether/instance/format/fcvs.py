@@ -1,7 +1,9 @@
-from ether.instance.instance import instance
-from ether.util import *
-from core import dataReader
 import csv
+
+from core import dataReader
+from ether.component.model.util import *
+from ether.instance.instance import instance
+
 
 def file_len(fpath):
     with open(fpath) as f:
@@ -16,7 +18,7 @@ class csvReader(dataReader):
     tarSelected is a list specifing which column should be treated as targetValue
     '''
     def __init__(self, filePath,
-                 maxQueueLen, attrSelected, tarSelected=-1,
+                 attrSelected, tarSelected=-1,
                  headSpace=0, hasTitle=False):
         '''
         attrSelected should be a list

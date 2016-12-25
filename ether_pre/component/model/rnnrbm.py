@@ -40,7 +40,7 @@ def shared_zeros(*shape):
     return theano.shared(numpy.zeros(shape, dtype=theano.config.floatX))
 
 
-from core import unsupervisedModel
+from ether.component.model.core import unsupervisedModel
 class RnnRbm(unsupervisedModel):
     def __init__(self, n_visible, n_hidden, n_hidden_recurrent, **kwargs):
         '''

@@ -1,6 +1,6 @@
 from core import dataReader
 import os
-from ether.exterior_lib.midi.utils import midiread
+from ether.ext_lib.midi.utils import midiread
 import theano
 from ether.instance.instance import unlabledInstance, instance
 

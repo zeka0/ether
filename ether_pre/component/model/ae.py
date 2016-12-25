@@ -1,7 +1,7 @@
 import theano
 from theano import tensor as T
 import numpy as np
-from core import unsupervisedModel
+from ether.component.model.core import unsupervisedModel
 from ether.component.init import init_shared, init_input, theano_rng
 
 class autoEncoder(unsupervisedModel):

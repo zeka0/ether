@@ -2,7 +2,9 @@
 
 #Import of self-designed modules
 from deprecated import layer
-from ether.util import *
+
+from ether.component.model.util import *
+
 
 class nnet(object):
     '''

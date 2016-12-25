@@ -4,7 +4,7 @@ filePath = r'E:\VirtualDesktop\nnet\minist\flatten_double_mnist.pkl.gz'
 model_fname = 'rbm'
 
 mnist_reader = mnistDataReader(filePath, 10)
-db = fullPool(mnist_reader.read_all(), True)
+db = fullInstancePool(mnist_reader.read_all(), True)
 opt = SGDOptimizer()
 
 persistent_chain = theano.shared(np.zeros((1, 500), dtype=theano.config.floatX), borrow=True)

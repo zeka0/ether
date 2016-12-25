@@ -1,8 +1,7 @@
-import numpy as np
 from theano.tensor.signal.conv import conv2d
 
 from core import *
-from ether.util.shape import *
+from ether.component.model.util.shape import *
 
 '''
 Personally I recommend using T.signal.conv2d instead of using T.nnet.conv2d

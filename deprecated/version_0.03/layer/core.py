@@ -1,4 +1,4 @@
-from ether.util import *
+from ether.component.model.util import *
 
 def merge_params(*params):
     paramList = []

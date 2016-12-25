@@ -6,8 +6,8 @@ model_fname = 'lenet'
 
 mnist_reader = mnistDataReader(filePath, 10)
 db = fullInstancePool(mnist_reader.read_all(), True)
-ff = dimFilter((1, 1, 28, 28))
-db = filterPool(db, ff)
+ff = dimFilter((1, 1, 28, 28), (1, 10))
+db = filterPool(db, [ff])
 classifyVal = classifyValidator(argmax)
 opt = SGDOptimizer()
 

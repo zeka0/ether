@@ -19,7 +19,6 @@ class SGDOptimizer(optimizerBase):
         for gpTuple in gradParams:
             grad = gpTuple[0]
             para = gpTuple[1]
-            #TODO bug
             update = para - grad * self.learningRate #take the mean of the batch
             updateDict[para] = update #Stochastic batch
         updateDict.update( self.get_extra_updates() )

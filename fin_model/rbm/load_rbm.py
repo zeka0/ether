@@ -15,7 +15,7 @@ if __name__ == '__main__':
     rbm = load_model(path)
     filePath = r'E:\VirtualDesktop\nnet\minist\flatten_double_mnist.pkl.gz'
     mnist_reader = mnistDataReader(filePath, 10)
-    db = fullPool(mnist_reader.read_all(), True)
+    db = fullInstancePool(mnist_reader.read_all(), True)
 
     import PIL.Image as Image
     image_data = np.zeros(

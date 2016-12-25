@@ -1,5 +1,5 @@
-from ether.util import *
-from layer import *
+from ether.component.model.util import *
+
 
 class nnet(object):
     '''

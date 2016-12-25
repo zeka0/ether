@@ -1,5 +1,4 @@
-from rbm import *
-
+from ether.component.model.cost.supv_cost import *
 from net import *
-
-from supv_cost import *
+from rbm import *
+from cost import *

@@ -16,7 +16,7 @@ class MidiInFile:
     
     Do parsing, and generate events with MidiToText,
     so we can see what a minimal midi file contains
-    >>> from ether.exterior_lib.midi.MidiToText import MidiToText
+    >>> from ether.ext_lib.midi.MidiToText import MidiToText
     >>> midi_in = MidiInFile(MidiToText(), test_file)
     >>> midi_in.read()
     format: 0, nTracks: 1, division: 480

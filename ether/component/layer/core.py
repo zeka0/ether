@@ -1,7 +1,7 @@
-from ether.util import *
-from ether.component.init import *
-from theano import tensor as T
 from ether.component.core import component
+from ether.component.init import *
+from ether.component.model.util import *
+
 
 def merge_params(*params):
     paramList = []
@@ -83,6 +83,7 @@ class inputLayer(layer):
         return self.get_inputShape()
 
     def connect(self, *layers):
+        #TODO change this to allow for model connection
         raise connectException('inputLayer can\'t connect to other layers')
 
 class biasLayer(layer):

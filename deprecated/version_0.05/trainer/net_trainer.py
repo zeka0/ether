@@ -1,4 +1,4 @@
-from ether.util.exception import *
+from ether.component.exception import *
 class net_trainer:
     def __init__(self, dataBase, optimizer, validator, nnet):
         self.nnet = nnet

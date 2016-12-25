@@ -1,5 +1,5 @@
 from core import *
-from ether.util import *
+from ether.component.model.util import *
 
 class activationLayer(layer):
     '''

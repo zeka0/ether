@@ -4,7 +4,7 @@ import numpy as np
 import nltk
 import os
 from ether.instance.pool import fullDataPool
-from ether.model_pickle import dump_pool
+from ether.epickle import dump_pool
 
 _VOCABULARY_SIZE = int(os.environ.get('VOCABULARY_SIZE', '8000'))
 _HIDDEN_DIM = int(os.environ.get('HIDDEN_DIM', '80'))

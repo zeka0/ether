@@ -1,6 +1,8 @@
-from core import *
-from ether.util.shape import flatten_shape
 import numpy as np
+
+from core import *
+from ether.component.model.util.shape import flatten_shape
+
 
 class merge1DLayer(layer):
     def __init__(self):

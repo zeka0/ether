@@ -1,4 +1,4 @@
-from ether.util.exception import *
+from ether.component.exception import *
 from ether.instance.instance import *
 class trainer:
     def __init__(self, dataBase, optimizer, validator, model, mini_batch_size=1,

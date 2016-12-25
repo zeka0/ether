@@ -5,7 +5,7 @@ debug = True
 filePath = r'E:\VirtualDesktop\nnet\minist\flatten_double_mnist.pkl.gz'
 model_fname = 'lenet'
 
-ff = dimFilter((1, 1, 28, 28))
+ff = dimFilter((1, 1, 28, 28), (1, 10))
 classifyVal = classifyValidator(argmax)
 opt = HessianFreeOptimizer()
 
@@ -33,7 +33,7 @@ for l in layers:
 mnist_reader = mnistDataReader(filePath, 10)
 db = fullInstancePool(mnist_reader.read_all(), True)
 #db = fullPool(None, True)
-db = filterPool(db, ff)
+db = filterPool(db, [ff])
 n_net = nnet(layers, cost_func=negtive_log, monitor_cost_func=None)
 tri = trainer(db, opt, classifyVal, n_net)
 

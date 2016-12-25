@@ -1,8 +1,8 @@
-import numpy as np
 from theano.tensor.signal.conv import conv2d
-from ether.component.init import init_shared
+
 from ether.component.layer.core import *
-from ether.util.shape import *
+from ether.component.model.util.shape import *
+
 
 class conv2DLayer(layer):
     '''

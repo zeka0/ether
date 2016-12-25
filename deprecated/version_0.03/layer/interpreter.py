@@ -1,4 +1,4 @@
-from ether.util.exception import *
+from ether.component.exception import *
 class mixValueInterpreter(object):
     '''
     Mix interpreting the regression and classification

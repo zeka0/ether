@@ -1,13 +1,8 @@
 __author__ = 'Alphasis Zeka0'
 
-from instance import *
-
 from component import *
-
-from util import *
-
 from debug import *
-
-from model_pickle import *
-
+from epickle import *
+from ether.component.model.util import *
+from instance import *
 from trainer import *

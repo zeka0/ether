@@ -1,5 +1,7 @@
-from exception import *
 import numpy as np
+
+from ether.component.exception import *
+
 '''
 This modula is used by the layer package to determine the shape of trainable parameters
 '''

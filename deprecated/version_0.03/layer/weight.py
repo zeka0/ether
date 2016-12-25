@@ -1,5 +1,4 @@
 from core import *
-from ether.util.shape import *
 
 
 class weightLayer(layer):

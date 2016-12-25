@@ -1,5 +1,5 @@
 from core import layer
-from ether.util.shape import dimShuffle_shape
+from ether.component.model.util.shape import dimShuffle_shape
 
 class dimShuffelLayer(layer):
     def __init__(self, *pattern):

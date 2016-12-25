@@ -1,6 +1,6 @@
 from collections import deque
 
-from ether.util import *
+from ether.component.model.util import *
 class fullPool(object):
     '''
     Full sampling pool
