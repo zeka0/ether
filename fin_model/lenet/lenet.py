@@ -6,7 +6,7 @@ model_fname = 'lenet'
 
 mnist_reader = mnistDataReader(filePath, 10)
 db = fullInstancePool(mnist_reader.read_all(), True)
-ff = dimFilter((1, 1, 28, 28), (1,10))
+ff = dimFilter((-1, 1, 28, 28), (-1,10))
 db = filterPool(db, [ff])
 classifyVal = classifyValidator(argmax)
 opt = SGDOptimizer()
@@ -14,7 +14,7 @@ opt = SGDOptimizer()
 biasInitDic = {'distr':'constant', 'value':0.}
 weightBiasInitDic = {'distr':'constant', 'value':0}
 
-input_layer = inputLayer( (1, 1, 28, 28) )
+input_layer = inputLayer( (-1, 1, 28, 28) )
 C1 = conv2DLayer(4, (5, 5), border_mode='valid', filter={'distr':'uniform', 'low':-np.sqrt( 6./125 ), 'high':np.sqrt( 6./125 )}, bias=biasInitDic)
 M2 = maxPoolLayer((2,2), ignore_border=True)
 T1 = tanhLayer(1, 1)
@@ -30,7 +30,7 @@ layers = [input_layer, C1, M2, T1, C3, M4, T2, F5, W6, T3, W7, S8]
 for i in xrange(len(layers) - 1):
     layers[i + 1].connect(layers[i])
 for l in layers:
-    print l.get_outputShape()
+    print_shape(l.get_outputShape())
 #Put together
 n_net = nnet(layers, cost_func=negtive_log, monitor_cost_func=None)
 tri = trainer(db, opt, classifyVal, n_net)

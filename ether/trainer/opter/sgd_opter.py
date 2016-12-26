@@ -1,4 +1,4 @@
-from core import *
+from ether.trainer.core import *
 from collections import OrderedDict
 '''
 When using this module, one thing to bear in mind is that you should check if loss function uses the targetTensor

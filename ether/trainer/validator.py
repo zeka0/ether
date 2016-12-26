@@ -1,7 +1,7 @@
 import theano
 from theano import tensor as T
 
-from ether.trainer import validatorBase
+from ether.trainer.core import validatorBase
 
 
 def argmin(x):
@@ -12,7 +12,7 @@ def argmax(x):
 
 class classifyValidator(validatorBase):
     def __init__(self, func, valid_print=True):
-        assert func in [argmax, argmin]
+        #assert func in [argmax, argmin]
         self.func = func
         self.valid_print = valid_print
 

@@ -1,10 +1,24 @@
 import numpy as np
+import sys
 
 from ether.component.exception import *
 
 '''
 This modula is used by the layer package to determine the shape of trainable parameters
+Value -1 means the wild card, meaning it could be any number greater than 0
 '''
+
+def print_shape(shape):
+    '''
+    Convert the shape to human understandable syntax
+    '''
+    sstrs = []
+    for s in shape:
+        sstrs.append(str(s)) if s != -1 else sstrs.append('Wild')
+    for i in xrange(len(sstrs) - 1):
+        sys.stdout.write(sstrs[i] + ', ')
+    sys.stdout.write(sstrs[-1] + '\n')
+    sys.stdout.flush()
 
 def conv2D_shape(imageShape, filterShape, mode):
     if len(imageShape) != 2:

@@ -3,11 +3,11 @@ from theano import tensor as T
 import numpy as np
 
 x = T.matrix()
-y = T.matrix()
-
-def elmentalwise_add(xi, yi):
-    return xi + yi
-
-res, updates = theano.scan(elmentalwise_add, sequences=[x, y])
-fn = theano.function(inputs=[x, y], outputs=res)
-print fn(np.arange(3).reshape((1,3)), np.arange(3).reshape((1,3)))
+y = T.sum(x, axis=1)
+fn = theano.function(inputs=[x], outputs=T.mean(y, axis=0))
+data = np.arange(4).reshape((2,2))
+print data
+print '******'
+print data[0][0]
+print data[0][1]
+print fn(data)

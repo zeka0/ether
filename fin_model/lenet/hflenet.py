@@ -1,5 +1,6 @@
 from ether import *
 
+#TODO has many problems
 debug = True
 #filePath = r'E:\VirtualDesktop\nnet\minist\normed_double_mnist.pkl.gz'
 filePath = r'E:\VirtualDesktop\nnet\minist\flatten_double_mnist.pkl.gz'
@@ -41,7 +42,7 @@ print 'compling the trainer'
 tri.compile()
 #training
 print 'training start'
-tri.train(200)
+tri.train(2000)
 
 dump_trainer(tri)
 

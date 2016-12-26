@@ -1,7 +1,6 @@
-from ether.util.activation import *
-
 from core import *
 from ether.component.init import init_shared
+from ether.component.model.util.activation import *
 
 #TODO check the dimension of the inputs
 '''

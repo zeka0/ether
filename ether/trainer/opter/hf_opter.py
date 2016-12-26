@@ -2,14 +2,19 @@
 # University of Montreal, 2012-2013
 # Modified by Ether Wei 2016
 
+#TODO this hf-opter seems only work with one parameter
+
 '''
 Hessian free optimizer has relatively limited use
 Ususally it's applied to the RNN
 Due to theano implementation details, some of the ops doesn't support the T.Rop, like downsample used in traditional Lenet
 Also, some un-supervised models are not fitted into it either
+
+Caution:
+Some operands don't support Rop(eg, max-pooling)
 '''
 
-from core import *
+from ether.trainer.core import *
 import numpy, sys
 import theano
 import theano.tensor as T
@@ -26,16 +31,10 @@ def detect_nan(i, node, fn, msg):
             break
 
 def gauss_newton_product(cost, params, v, s):  # this computes the product Gv = J'HJv (G is the Gauss-Newton matrix)
-
-    try:
-        Jv = T.Rop(s, params, v)
-    except Exception as ex:
-        print 'Exception occured during Rop\n', ex, '\nTrying alternative implementation'
-        Jv = 0
-        #TODO flatten required for non-ndim==1 variables
-        st = s if s.ndim == 1 else T.flatten(s, outdim=1)
-        for pi, vi in zip(params, v):
-            Jv = Jv + T.dot(T.flatten(theano.gradient.jacobian(st, pi, disconnected_inputs='ignore'), outdim=2), T.flatten(vi, outdim=1))
+    '''
+    :param s: output tensor of the model
+    '''
+    Jv = T.Rop(s, params, v)
 
     HJv = T.grad(T.sum(T.grad(cost, s)*Jv), s, consider_constant=[Jv], disconnected_inputs='ignore')
     Gv = T.grad(T.sum(HJv*s), params, consider_constant=[HJv, Jv], disconnected_inputs='ignore')
@@ -43,7 +42,6 @@ def gauss_newton_product(cost, params, v, s):  # this computes the product Gv = 
     return Gv
 
 
-#TODO computation results in NAN(not a number)
 class HessianFreeOptimizer(optimizerBase):
     def __init__(self, h=None, ha=None,
                  initial_lambda=0.1, mu=0.03, preconditioner=False,
