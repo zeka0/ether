@@ -11,7 +11,7 @@ persistent_chain = theano.shared(np.zeros((1, 500), dtype=theano.config.floatX),
 biasInitDic = {'distr':'constant', 'value':0.}
 weightInitDic = {'distr':'uniform', 'low':-np.sqrt(6./(784 + 500)), 'high':np.sqrt(6./(784 + 500))}
 rbm = RestrictedBM(784, 500, vbias=biasInitDic, hbias=biasInitDic, weight=weightInitDic, persistent=persistent_chain)
-tri = trainer(db, opt, None, rbm, mini_batch_size=1)
+tri = trainer(db, opt, None, rbm)
 
 print 'compling the trainer'
 tri.compile()

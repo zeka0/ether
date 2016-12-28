@@ -1,7 +1,10 @@
 from ether.component.exception import *
 from ether.instance.instance import *
+
+mini_batch_size = 1
+
 class trainer:
-    def __init__(self, dataBase, optimizer, validator, model, mini_batch_size=1,
+    def __init__(self, dataBase, optimizer, validator, model,
                  train_ep=None, valid_ep=None):
         '''
         :param train_ep: Extra-Operation during traning process, called once per training

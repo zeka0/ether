@@ -3,7 +3,7 @@ from theano import tensor as T
 import numpy as np
 from theano.tensor.shared_randomstreams import RandomStreams
 from core import unsupervisedModel
-from ether.component.init import init_shared, init_input
+from ether.component.init import init_shared, init_tensor
 from ether.component.init import theano_rng
 
 class RestrictedBM(unsupervisedModel):
@@ -159,7 +159,8 @@ class RestrictedBM(unsupervisedModel):
         return self.updates
 
     def get_outputTensor(self):
-        raise NotImplementedError('No specific output can be caculated')
+        self.get_cost()#compute cost and chain
+        return self.chain_end
 
     def get_inputTensor(self):
         return self.input

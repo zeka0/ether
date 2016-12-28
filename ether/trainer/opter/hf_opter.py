@@ -2,8 +2,6 @@
 # University of Montreal, 2012-2013
 # Modified by Ether Wei 2016
 
-#TODO this hf-opter seems only work with one parameter
-
 '''
 Hessian free optimizer has relatively limited use
 Ususally it's applied to the RNN
@@ -35,7 +33,6 @@ def gauss_newton_product(cost, params, v, s):  # this computes the product Gv = 
     :param s: output tensor of the model
     '''
     Jv = T.Rop(s, params, v)
-
     HJv = T.grad(T.sum(T.grad(cost, s)*Jv), s, consider_constant=[Jv], disconnected_inputs='ignore')
     Gv = T.grad(T.sum(HJv*s), params, consider_constant=[HJv, Jv], disconnected_inputs='ignore')
     Gv = map(T.as_tensor_variable, Gv)  # for CudaNdarray
@@ -82,19 +79,21 @@ class HessianFreeOptimizer(optimizerBase):
             inputs = [self.get_inputTensor(), self.get_targetTensor()]
         else: inputs = [self.get_inputTensor()]
         self.params = self.get_params() #calling get_params() everytime will result in memory leak
+
+        #recording parameters shape information
         self.shapes = [i.get_value().shape for i in self.params]
         self.sizes = map(numpy.prod, self.shapes)
         self.positions = numpy.cumsum([0] + self.sizes)[:-1]
 
         g = [gp[0] for gp in self.get_gparams()]
-        g = map(T.as_tensor_variable, g)  # for CudaNdarray
+        g = map(T.as_tensor_variable, g)  #for CudaNdarray
 
         self.f_gc = theano.function(inputs, g, on_unused_input='ignore',
                                     mode=theano.compile.MonitorMode(
-                                        post_func=lambda i, node, fn:detect_nan(i, node, fn, 'In gradient compute')))  # during gradient computation
+                                        post_func=lambda i, node, fn:detect_nan(i, node, fn, 'In gradient compute')))  #caculating gradient
         self.f_cost = theano.function(inputs, self.get_cost(), on_unused_input='ignore',
                                       mode=theano.compile.MonitorMode(
-                                          post_func=lambda i, node, fn:detect_nan(i, node, fn, 'In cost compute')))  # during gradient computation
+                                          post_func=lambda i, node, fn:detect_nan(i, node, fn, 'In cost compute')))  #caculating cost
 
         symbolic_types = T.scalar, T.vector, T.matrix, T.tensor3, T.tensor4
 
@@ -114,7 +113,7 @@ class HessianFreeOptimizer(optimizerBase):
 
         self.f_Gv = theano.function(inputs + v + [coefficient], Gv, givens=givens,
                                            on_unused_input='ignore', mode=theano.compile.MonitorMode(
-                post_func=lambda i, node, fn:detect_nan(i, node, fn, 'In Gv compute')))  # during gradient computation
+                post_func=lambda i, node, fn:detect_nan(i, node, fn, 'In Gv compute')))  #Compute Gv matrix
 
     def cg(self, b):
         '''

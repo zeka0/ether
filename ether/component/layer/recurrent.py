@@ -1,6 +1,7 @@
 from core import *
 from ether.component.init import init_shared
 from ether.component.model.util.activation import *
+from ether.trainer.trainer import mini_batch_size
 
 #TODO check the dimension of the inputs
 '''
@@ -73,13 +74,13 @@ class recurrentLayer(layer):
         self.init_hiddenToVisible()
 
         def forward_prop_step(x_t, s_t_prev, U, V, W):
-            s_t = self.hiddenToHiddenFn(U.dot(x_t) + T.dot(s_t_prev, W))
+            s_t = self.hiddenToHiddenFn(T.dot(x_t, U) + T.dot(s_t_prev, W))
             o_t = softmax(T.dot(s_t, V))
             return o_t, s_t
 
         [o_t, s_t], updates = theano.scan(fn=forward_prop_step,
                                           sequences=input,
-                                          outputs_info=[None, dict(initial=T.zeros((1, self.numHUnits)))],
+                                          outputs_info=[None, dict(initial=T.zeros((mini_batch_size, self.numHUnits)))], #make s_t_prev broadcastba
                                           non_sequences=[self.U, self.V, self.W])
         #switch batch number with seq number
         outputTensor = o_t.dimshuffle(1, 0, 2)

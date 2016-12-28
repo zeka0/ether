@@ -15,8 +15,7 @@ weightBiasInitDic = {'distr':'constant', 'value':0}
 
 #since rnn requires the input to be of any length
 
-#TODO use filter to change the shape
-input_layer = inputLayer( (1, 8000, 1) )#8000 to make other layers know what they are dealing with
+input_layer = inputLayer( (-1, -1, 1) )#8000 to make other layers know what they are dealing with
 R1 = recurrentLayer(100, U = {'distr':'uniform', 'low':-np.sqrt( 6./8100 ), 'high':np.sqrt( 6./8100 )},
                     W={'distr':'uniform', 'low':-np.sqrt( 6./200), 'high':np.sqrt( 6./200)},
                     V={'distr':'uniform', 'low':-np.sqrt( 6./8100 ), 'high':np.sqrt( 6./8100 )})
@@ -24,7 +23,7 @@ layers = [input_layer, R1]
 for i in xrange(len(layers) - 1):
     layers[i + 1].connect(layers[i])
 for l in layers:
-    print l.get_outputShape()
+    print_shape(l.get_outputShape())
 #Put together
 n_net = nnet(layers, cost_func=cross_entro, monitor_cost_func=None)
 

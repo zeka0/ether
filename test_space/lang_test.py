@@ -1,6 +1,11 @@
 import numpy as np
 
-x = np.arange(10).reshape((2,5))
-print x
-print x.shape
-print len(x.shape) == 2
+class XTest(object):
+    def __init__(self):
+        print self.__class__
+        print self.__module__
+        print self.__str__()
+        print self.__class__.__name__
+
+
+x = XTest()

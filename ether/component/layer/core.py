@@ -69,7 +69,7 @@ class inputLayer(layer):
         self.init_input(inputShape)
 
     def init_input(self, inputShape):
-        self.set_inputTensor( init_input(inputShape) )
+        self.set_inputTensor( init_tensor(inputShape) )
         self.set_outputTensor( self.get_inputTensor() )
         self.inputShape = inputShape
 
